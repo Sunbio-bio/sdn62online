@@ -9,25 +9,31 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { background-color: #f4f7fa; color: #333; overflow-x: hidden; }
+        
         .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: #1a5296; color: white; transition: 0.3s; z-index: 2000; padding-top: 60px; box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
         .sidebar.active { left: 0; }
         .sidebar h3 { padding: 20px; font-size: 18px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px; }
         .sidebar a { padding: 15px 25px; text-decoration: none; color: #e0e0e0; display: flex; align-items: center; gap: 15px; transition: 0.3s; font-size: 15px; cursor: pointer; }
         .sidebar a:hover { background: rgba(255,255,255,0.1); color: white; padding-left: 35px; }
         .sidebar .logout-link { color: #ff7675; margin-top: 50px; border-top: 1px solid rgba(255,255,255,0.1); }
+        
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .overlay.active { display: block; }
+        
         .top-bar { background: #fff; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
         .menu-toggle { font-size: 28px; cursor: pointer; color: #1a5296; }
         .logo-area { display: flex; align-items: center; gap: 10px; font-weight: 700; color: #1a5296; }
+        
         .hero { display: flex; align-items: center; justify-content: space-between; padding: 40px 5%; background: white; margin-bottom: 30px; gap: 30px; }
         .hero-content h1 { font-size: 32px; color: #1a5296; }
         .hero-img img { width: 100%; max-width: 400px; border-radius: 20px; }
+        
         .small-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 0 5% 50px; }
         .s-card { background: white; padding: 25px; border-radius: 15px; display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: 0.3s; cursor: pointer; border: 1px solid transparent; }
         .s-card:hover { transform: translateY(-5px); border-color: #1a5296; }
         .icon { font-size: 35px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 15px; }
         .red { background: #ffe3e3; } .blue { background: #e3f2fd; } .green { background: #e8f5e9; }
+        
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; align-items: center; justify-content: center; }
         .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; position: relative; }
         .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; }
@@ -35,6 +41,7 @@
         .btn-post { width: 100%; background: #1a5296; color: white; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
         .btn-post:disabled { background: #ccc; }
         .footer { text-align: center; padding: 40px; color: #999; font-size: 12px; }
+        
         @media (max-width: 768px) { .hero { flex-direction: column; text-align: center; } .logo-area span { display: none; } }
     </style>
 </head>
@@ -47,6 +54,7 @@
         <a href="kelas-digital.html?role=guru"><span>💻</span> Dashboard Guru</a>
         <a href="https://sunbio-bio.github.io/monitoring-siswa/admin.html" target="_blank"><span>📊</span> Monitoring Guru</a>
         <a href="admin-piket.html"><span>🧹</span> Jadwal Kebersihan</a>
+        <a href="#" onclick="alert('Fitur Bank Soal segera hadir!')"><span>📝</span> Bank Soal</a>
         <a onclick="bukaForum()"><span>💬</span> Forum Diskusi</a>
         <a href="#" onclick="aksiLogout()" class="logout-link"><span>🚪</span> Logout</a>
     </nav>
@@ -62,7 +70,7 @@
     <section class="hero">
         <div class="hero-content">
             <h1>Halo, Bapak/Ibu Guru!</h1>
-            <p>Kirim update foto & teks ke HP Siswa (Otomatis Kompres).</p>
+            <p>Kirim update foto & teks ke HP Siswa dengan sistem kompres otomatis.</p>
         </div>
         <div class="hero-img"><img src="sekolahku.jpg.jpeg" alt="Sekolah"></div>
     </section>
@@ -79,22 +87,37 @@
             <h2 id="modalTitle">Tambah Update</h2>
             <input type="text" id="postTitle" placeholder="Judul Informasi...">
             <textarea id="postContent" rows="4" placeholder="Ketik isi pengumuman..."></textarea>
-            <label style="font-size: 11px; color: #666;">Lampirkan Foto (Max 64KB - Otomatis Kompres):</label>
+            <label style="font-size: 11px; color: #666;">Lampirkan Foto (Otomatis Kompres):</label>
             <input type="file" id="postFile" accept="image/*">
             <button class="btn-post" id="btnPublish" onclick="kirimUpdate()">🚀 Publikasikan Sekarang</button>
         </div>
     </div>
+
+    <footer class="footer">Portal Digital Guru © 2026 | Developed by Riski OPS</footer>
 
     <script>
         const ably = new Ably.Realtime('Lqd-SA.02uOJw:5Q9fS13uwWhBLZJsqF9XA4gjNMzowZHCq2jJ9kxDdx8');
         const channel = ably.channels.get('update-sekolah');
         let currentType = "";
 
-        ably.connection.on('connected', () => { document.getElementById('status').innerText = "Online"; document.getElementById('status').style.color="green"; });
+        ably.connection.on('connected', () => { 
+            document.getElementById('status').innerText = "Online"; 
+            document.getElementById('status').style.color="green"; 
+        });
 
-        function toggleMenu() { document.getElementById("sidebar").classList.toggle("active"); document.getElementById("overlay").classList.toggle("active"); }
+        function toggleMenu() { 
+            document.getElementById("sidebar").classList.toggle("active"); 
+            document.getElementById("overlay").classList.toggle("active"); 
+        }
+
         function bukaForum() { window.location.href = "forum.html?user=GuruAdmin"; }
-        function openModal(type) { currentType = type; document.getElementById("modalTitle").innerText = "Kirim " + type; document.getElementById("modalUpdate").style.display = "flex"; }
+
+        function openModal(type) { 
+            currentType = type; 
+            document.getElementById("modalTitle").innerText = "Kirim " + type; 
+            document.getElementById("modalUpdate").style.display = "flex"; 
+        }
+
         function closeModal() { document.getElementById("modalUpdate").style.display = "none"; }
 
         function kirimUpdate() {
@@ -115,16 +138,14 @@
                     const img = new Image();
                     img.src = event.target.result;
                     img.onload = function() {
-                        // KOMPRES GAMBAR KE LOW QUALITY
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
-                        const maxW = 400; // Perkecil lebar jadi 400px
+                        const maxW = 400; 
                         const scale = maxW / img.width;
                         canvas.width = maxW;
                         canvas.height = img.height * scale;
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                         
-                        // Ubah ke Base64 dengan kualitas 0.5 (50%) agar filenya kecil
                         const compressedData = canvas.toDataURL('image/jpeg', 0.5);
                         publishData(judul, isi, compressedData);
                     };
@@ -146,8 +167,7 @@
                 btn.disabled = false;
                 btn.innerText = "🚀 Publikasikan Sekarang";
                 if(err) {
-                    console.log(err);
-                    alert("Gagal kirim! Foto mungkin terlalu besar meski sudah dikompres.");
+                    alert("Gagal kirim! Foto mungkin terlalu besar.");
                 } else {
                     alert("Selesai! Informasi terkirim.");
                     closeModal();
@@ -158,7 +178,12 @@
             });
         }
 
-        function aksiLogout() { if(confirm("Yakin keluar?")) { sessionStorage.clear(); window.location.href = "login.html"; } }
+        function aksiLogout() { 
+            if(confirm("Yakin keluar?")) { 
+                sessionStorage.clear(); 
+                window.location.href = "login.html"; 
+            } 
+        }
     </script>
 </body>
 </html>
