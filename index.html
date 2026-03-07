@@ -20,7 +20,7 @@
         .sidebar h3 { padding: 20px; font-size: 18px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px; }
         .sidebar a {
             padding: 15px 25px; text-decoration: none; color: #e0e0e0;
-            display: flex; align-items: center; gap: 15px; transition: 0.3s; font-size: 15px;
+            display: flex; align-items: center; gap: 15px; transition: 0.3s; font-size: 15px; cursor: pointer;
         }
         .sidebar a:hover { background: rgba(255,255,255,0.1); color: white; padding-left: 35px; }
         .sidebar .logout-link { color: #ff7675; margin-top: 50px; border-top: 1px solid rgba(255,255,255,0.1); }
@@ -49,7 +49,7 @@
         .s-card { background: white; padding: 25px; border-radius: 15px; display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: 0.3s; cursor: pointer; border: 1px solid transparent; }
         .s-card:hover { transform: translateY(-5px); border-color: #1a5296; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
         .icon { font-size: 35px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 15px; }
-        .red { background: #ffe3e3; } .blue { background: #e3f2fd; } .gold { background: #fff9db; }
+        .red { background: #ffe3e3; } .blue { background: #e3f2fd; } .gold { background: #fff9db; } .green { background: #e8f5e9; }
 
         /* --- MODAL INPUT --- */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; align-items: center; justify-content: center; }
@@ -76,7 +76,7 @@
         <a href="https://bit.ly/riski62admin"><span>📊</span> Monitoring Guru</a>
         <a href="admin-piket.html"><span>🧹</span> Jadwal Kebersihan</a>
         <a href="#" onclick="alert('Fitur Bank Soal segera hadir!')"><span>📝</span> Bank Soal</a>
-        <a href="forum.html"><span>💬</span> Forum Diskusi</a>
+        <a onclick="bukaForum()"><span>💬</span> Forum Diskusi</a>
         
         <a href="#" onclick="aksiLogout()" class="logout-link"><span>🚪</span> Keluar / Logout</a>
     </nav>
@@ -98,17 +98,17 @@
     <section class="hero">
         <div class="hero-content">
             <h1>Halo, Bapak/Ibu Guru!</h1>
-            <p>Klik kartu di bawah untuk mengirim update real-time ke HP Siswa.</p>
+            <p>Kelola sekolah dan kirim update real-time ke HP Siswa dengan mudah.</p>
         </div>
         <div class="hero-img"><img src="sekolahku.jpg.jpeg" alt="Sekolah"></div>
     </section>
 
     <section class="small-cards">
         <div class="s-card" onclick="openModal('PENGUMUMAN')">
-            <span class="icon red">📄</span>
+            <span class="icon red">📢</span>
             <div class="s-text">
-                <strong>Pengumuman Sekolah</strong>
-                <p>Info Guru</p>
+                <strong>Kirim Pengumuman</strong>
+                <p>Muncul di HP Siswa</p>
             </div>
         </div>
         <div class="s-card" onclick="openModal('KEGIATAN')">
@@ -118,11 +118,11 @@
                 <p>Berita & Peraturan</p>
             </div>
         </div>
-        <div class="s-card" onclick="openModal('PRESTASI')">
-            <span class="icon gold">⭐</span>
+        <div class="s-card" onclick="bukaForum()">
+            <span class="icon green">💬</span>
             <div class="s-text">
-                <strong>Prestasi Siswa</strong>
-                <p>Juara Kelas & Lomba</p>
+                <strong>Forum Diskusi</strong>
+                <p>Tanya Jawab Siswa</p>
             </div>
         </div>
     </section>
@@ -149,6 +149,12 @@
         function toggleMenu() {
             document.getElementById("sidebar").classList.toggle("active");
             document.getElementById("overlay").classList.toggle("active");
+        }
+
+        // FUNGSI UNTUK MEMBUKA FORUM
+        function bukaForum() {
+            // Kita bisa tambahkan parameter role agar di forum guru punya tanda khusus
+            window.location.href = "forum.html?user=GuruAdmin";
         }
 
         function openModal(type) {
@@ -188,7 +194,7 @@
                 tanggal: new Date().toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })
             }, (err) => {
                 if(err) return alert("Gagal mengirim!");
-                alert("Selesai! Informasi sudah terkirim ke semua HP Siswa.");
+                alert("Selesai! Informasi sudah terkirim ke HP Siswa.");
                 closeModal();
                 document.getElementById('postTitle').value = "";
                 document.getElementById('postContent').value = "";
@@ -204,4 +210,3 @@
     </script>
 </body>
 </html>
-
