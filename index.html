@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Guru - SDN 62 TAJONG</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { background-color: #f4f7fa; color: #333; overflow-x: hidden; }
@@ -24,7 +25,6 @@
         .sidebar a:hover { background: rgba(255,255,255,0.1); color: white; padding-left: 35px; }
         .sidebar .logout-link { color: #ff7675; margin-top: 50px; border-top: 1px solid rgba(255,255,255,0.1); }
 
-        /* Overlay saat sidebar buka */
         .overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 1500;
@@ -37,44 +37,28 @@
             justify-content: space-between; align-items: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000;
         }
-        .menu-toggle { font-size: 28px; cursor: pointer; color: #1a5296; display: flex; align-items: center; }
+        .menu-toggle { font-size: 28px; cursor: pointer; color: #1a5296; }
         .logo-area { display: flex; align-items: center; gap: 10px; font-weight: 700; color: #1a5296; }
-        
-        .user-area { display: flex; align-items: center; gap: 15px; font-size: 14px; }
-        .user-avatar { width: 35px; height: 35px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
-        /* --- CONTENT AREA --- */
-        .hero { 
-            display: flex; align-items: center; justify-content: space-between; 
-            padding: 40px 5%; background: white; margin-bottom: 30px; gap: 30px;
-        }
+        /* --- CONTENT --- */
+        .hero { display: flex; align-items: center; justify-content: space-between; padding: 40px 5%; background: white; margin-bottom: 30px; gap: 30px; }
         .hero-content h1 { font-size: 32px; color: #1a5296; }
-        .hero-content p { color: #666; font-size: 16px; margin-top: 5px; }
         .hero-img img { width: 100%; max-width: 400px; border-radius: 20px; }
 
-        .small-cards { 
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-            gap: 20px; padding: 0 5% 50px; 
-        }
-        .s-card { 
-            background: white; padding: 25px; border-radius: 15px; 
-            display: flex; align-items: center; gap: 20px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: 0.3s;
-        }
-        .s-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .small-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 0 5%; }
+        .s-card { background: white; padding: 25px; border-radius: 15px; display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: 0.3s; cursor: pointer; border: 1px solid transparent; }
+        .s-card:hover { transform: translateY(-5px); border-color: #1a5296; }
         .icon { font-size: 35px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 15px; }
-        .red { background: #ffe3e3; }
-        .blue { background: #e3f2fd; }
-        .gold { background: #fff9db; }
-        .s-text strong { display: block; font-size: 16px; color: #333; }
-        .s-text p { font-size: 13px; color: #888; }
+        .red { background: #ffe3e3; } .blue { background: #e3f2fd; } .gold { background: #fff9db; }
+
+        /* --- MODAL INPUT --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; position: relative; }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
+        .btn-post { width: 100%; background: #1a5296; color: white; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
 
         .footer { text-align: center; padding: 40px; color: #999; font-size: 12px; }
-
-        @media (max-width: 768px) {
-            .hero { flex-direction: column; text-align: center; }
-            .logo-area span { display: none; } /* Sembunyikan nama sekolah di HP agar tidak penuh */
-        }
     </style>
 </head>
 <body>
@@ -84,71 +68,107 @@
     <nav class="sidebar" id="sidebar">
         <h3>MENU UTAMA</h3>
         <a href="kelas-digital.html?role=guru"><span>💻</span> Dashboard Guru</a>
-        <a href="https://sunbio-bio.github.io/monitoring-siswa/admin.html"><span>📊</span> Monitoring Guru</a>
+        <a href="https://bit.ly/riski62admin"><span>📊</span> Monitoring Guru</a>
         <a href="admin-piket.html"><span>🧹</span> Jadwal Kebersihan</a>
-        <a href="#" onclick="alert('Dalam Pengembangan')"><span>📝</span> Bank Soal</a>
-        <a href="#" onclick="alert('Dalam Pengembangan')"><span>💬</span> Forum Diskusi</a>
-        
         <a href="#" onclick="aksiLogout()" class="logout-link"><span>🚪</span> Keluar / Logout</a>
     </nav>
 
     <header class="top-bar">
         <div style="display: flex; align-items: center; gap: 20px;">
             <div class="menu-toggle" onclick="toggleMenu()">☰</div>
-            <div class="logo-area">
-                <div class="logo-icon">🎓</div>
-                <span>SD NEGERI 62 TAJONG</span>
-            </div>
-        </div>
-        <div class="user-area">
-            <span>Admin <strong>Guru</strong></span>
-            <div class="user-avatar">👤</div>
+            <div class="logo-area"><span>SD NEGERI 62 TAJONG</span></div>
         </div>
     </header>
 
     <section class="hero">
         <div class="hero-content">
             <h1>Halo, Bapak/Ibu Guru!</h1>
-            <p>Panel kendali pusat SD Negeri 62 Tajong.<br>Gunakan menu di pojok kiri untuk mulai mengelola.</p>
+            <p>Klik kartu di bawah untuk mengirim update ke siswa.</p>
         </div>
-        <div class="hero-img">
-            <img src="sekolahku.jpg.jpeg" alt="Sekolah" onerror="this.src='https://via.placeholder.com/400x250?text=SDN+62+TAJONG'">
-        </div>
+        <div class="hero-img"><img src="sekolahku.jpg.jpeg" alt="Sekolah"></div>
     </section>
 
     <section class="small-cards">
-        <div class="s-card">
+        <div class="s-card" onclick="openModal('PENGUMUMAN')">
             <span class="icon red">📄</span>
-            <div class="s-text">
-                <strong>Pengumuman Sekolah</strong>
-                <p>Info Guru & Staff</p>
-            </div>
+            <div class="s-text"><strong>Pengumuman Sekolah</strong><p>Info Guru & Staff</p></div>
         </div>
-        <div class="s-card">
+        <div class="s-card" onclick="openModal('KEGIATAN')">
             <span class="icon blue">ℹ️</span>
-            <div class="s-text">
-                <strong>Peraturan Sekolah</strong>
-                <p>Update Kegiatan Siswa</p>
-            </div>
+            <div class="s-text"><strong>Update Kegiatan</strong><p>Berita & Peraturan</p></div>
         </div>
-        <div class="s-card">
+        <div class="s-card" onclick="openModal('PRESTASI')">
             <span class="icon gold">⭐</span>
-            <div class="s-text">
-                <strong>Prestasi Siswa</strong>
-                <p>Update Juara Kelas</p>
-            </div>
+            <div class="s-text"><strong>Prestasi Siswa</strong><p>Juara Kelas & Lomba</p></div>
         </div>
     </section>
 
-    <footer class="footer">
-        Portal Digital Guru © 2026 | Developed by Riski OPS 62 Tajong
-    </footer>
+    <div id="modalUpdate" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Tambah Update</h2>
+            <hr><br>
+            <input type="text" id="postTitle" placeholder="Judul Informasi...">
+            <textarea id="postContent" rows="4" placeholder="Ketik isi pengumuman/berita di sini..."></textarea>
+            <label style="font-size: 12px; color: gray;">Upload Foto (Opsional):</label>
+            <input type="file" id="postFile" accept="image/*">
+            <button class="btn-post" onclick="kirimUpdate()">🚀 Publikasikan Sekarang</button>
+        </div>
+    </div>
+
+    <footer class="footer">Portal Digital Guru © 2026 | Developed by Riski OPS 62 Tajong</footer>
 
     <script>
-        // Fungsi Buka Tutup Sidebar
+        const ably = new Ably.Realtime('Lqd-SA.02uOJw:5Q9fS13uwWhBLZJsqF9XA4gjNMzowZHCq2jJ9kxDdx8');
+        const channel = ably.channels.get('update-sekolah');
+        let currentType = "";
+
         function toggleMenu() {
             document.getElementById("sidebar").classList.toggle("active");
             document.getElementById("overlay").classList.toggle("active");
+        }
+
+        function openModal(type) {
+            currentType = type;
+            document.getElementById("modalTitle").innerText = "Update " + type;
+            document.getElementById("modalUpdate").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("modalUpdate").style.display = "none";
+        }
+
+        function kirimUpdate() {
+            const judul = document.getElementById('postTitle').value;
+            const isi = document.getElementById('postContent').value;
+            const fileInput = document.getElementById('postFile');
+            
+            if (!judul || !isi) return alert("Mohon isi judul dan konten!");
+
+            const reader = new FileReader();
+            if (fileInput.files[0]) {
+                // Jika ada foto, ubah ke format teks (Base64) agar bisa dikirim
+                reader.readAsDataURL(fileInput.files[0]);
+                reader.onload = function () {
+                    publishData(judul, isi, reader.result);
+                };
+            } else {
+                publishData(judul, isi, null);
+            }
+        }
+
+        function publishData(judul, isi, foto) {
+            channel.publish('infoBaru', {
+                tipe: currentType,
+                judul: judul,
+                isi: isi,
+                foto: foto,
+                tanggal: new Date().toLocaleString('id-ID')
+            }, (err) => {
+                if(err) return alert("Gagal mengirim!");
+                alert("Berhasil! Update telah dikirim ke HP Siswa.");
+                location.reload();
+            });
         }
 
         function aksiLogout() {
@@ -159,7 +179,4 @@
         }
     </script>
 </body>
-
 </html>
-
-
