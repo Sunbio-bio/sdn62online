@@ -45,9 +45,9 @@
         .hero-content h1 { font-size: 32px; color: #1a5296; }
         .hero-img img { width: 100%; max-width: 400px; border-radius: 20px; }
 
-        .small-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 0 5%; }
+        .small-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 0 5% 50px; }
         .s-card { background: white; padding: 25px; border-radius: 15px; display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: 0.3s; cursor: pointer; border: 1px solid transparent; }
-        .s-card:hover { transform: translateY(-5px); border-color: #1a5296; }
+        .s-card:hover { transform: translateY(-5px); border-color: #1a5296; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
         .icon { font-size: 35px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 15px; }
         .red { background: #ffe3e3; } .blue { background: #e3f2fd; } .gold { background: #fff9db; }
 
@@ -59,6 +59,11 @@
         .btn-post { width: 100%; background: #1a5296; color: white; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
 
         .footer { text-align: center; padding: 40px; color: #999; font-size: 12px; }
+
+        @media (max-width: 768px) {
+            .hero { flex-direction: column; text-align: center; }
+            .logo-area span { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -70,20 +75,30 @@
         <a href="kelas-digital.html?role=guru"><span>💻</span> Dashboard Guru</a>
         <a href="https://bit.ly/riski62admin"><span>📊</span> Monitoring Guru</a>
         <a href="admin-piket.html"><span>🧹</span> Jadwal Kebersihan</a>
+        <a href="#" onclick="alert('Fitur Bank Soal segera hadir!')"><span>📝</span> Bank Soal</a>
+        <a href="forum.html"><span>💬</span> Forum Diskusi</a>
+        
         <a href="#" onclick="aksiLogout()" class="logout-link"><span>🚪</span> Keluar / Logout</a>
     </nav>
 
     <header class="top-bar">
         <div style="display: flex; align-items: center; gap: 20px;">
             <div class="menu-toggle" onclick="toggleMenu()">☰</div>
-            <div class="logo-area"><span>SD NEGERI 62 TAJONG</span></div>
+            <div class="logo-area">
+                <div class="logo-icon">🎓</div>
+                <span>SD NEGERI 62 TAJONG</span>
+            </div>
+        </div>
+        <div class="user-area" style="font-size: 14px; display: flex; align-items: center; gap: 10px;">
+            <span>Admin <strong>Guru</strong></span>
+            <div style="width: 35px; height: 35px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center;">👤</div>
         </div>
     </header>
 
     <section class="hero">
         <div class="hero-content">
             <h1>Halo, Bapak/Ibu Guru!</h1>
-            <p>Klik kartu di bawah untuk mengirim update ke siswa.</p>
+            <p>Klik kartu di bawah untuk mengirim update real-time ke HP Siswa.</p>
         </div>
         <div class="hero-img"><img src="sekolahku.jpg.jpeg" alt="Sekolah"></div>
     </section>
@@ -91,26 +106,34 @@
     <section class="small-cards">
         <div class="s-card" onclick="openModal('PENGUMUMAN')">
             <span class="icon red">📄</span>
-            <div class="s-text"><strong>Pengumuman Sekolah</strong><p>Info Guru & Staff</p></div>
+            <div class="s-text">
+                <strong>Pengumuman Sekolah</strong>
+                <p>Info Guru & Staff</p>
+            </div>
         </div>
         <div class="s-card" onclick="openModal('KEGIATAN')">
             <span class="icon blue">ℹ️</span>
-            <div class="s-text"><strong>Update Kegiatan</strong><p>Berita & Peraturan</p></div>
+            <div class="s-text">
+                <strong>Update Kegiatan</strong>
+                <p>Berita & Peraturan</p>
+            </div>
         </div>
         <div class="s-card" onclick="openModal('PRESTASI')">
             <span class="icon gold">⭐</span>
-            <div class="s-text"><strong>Prestasi Siswa</strong><p>Juara Kelas & Lomba</p></div>
+            <div class="s-text">
+                <strong>Prestasi Siswa</strong>
+                <p>Juara Kelas & Lomba</p>
+            </div>
         </div>
     </section>
 
     <div id="modalUpdate" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
-            <h2 id="modalTitle">Tambah Update</h2>
-            <hr><br>
+            <h2 id="modalTitle" style="color:#1a5296; margin-bottom:15px;">Tambah Update</h2>
             <input type="text" id="postTitle" placeholder="Judul Informasi...">
-            <textarea id="postContent" rows="4" placeholder="Ketik isi pengumuman/berita di sini..."></textarea>
-            <label style="font-size: 12px; color: gray;">Upload Foto (Opsional):</label>
+            <textarea id="postContent" rows="4" placeholder="Ketik isi pengumuman di sini..."></textarea>
+            <label style="font-size: 12px; color: gray;">Lampirkan Foto (Opsional):</label>
             <input type="file" id="postFile" accept="image/*">
             <button class="btn-post" onclick="kirimUpdate()">🚀 Publikasikan Sekarang</button>
         </div>
@@ -130,7 +153,7 @@
 
         function openModal(type) {
             currentType = type;
-            document.getElementById("modalTitle").innerText = "Update " + type;
+            document.getElementById("modalTitle").innerText = "Kirim " + type;
             document.getElementById("modalUpdate").style.display = "flex";
         }
 
@@ -143,11 +166,10 @@
             const isi = document.getElementById('postContent').value;
             const fileInput = document.getElementById('postFile');
             
-            if (!judul || !isi) return alert("Mohon isi judul dan konten!");
+            if (!judul || !isi) return alert("Harap isi Judul dan Pesan!");
 
-            const reader = new FileReader();
             if (fileInput.files[0]) {
-                // Jika ada foto, ubah ke format teks (Base64) agar bisa dikirim
+                const reader = new FileReader();
                 reader.readAsDataURL(fileInput.files[0]);
                 reader.onload = function () {
                     publishData(judul, isi, reader.result);
@@ -163,11 +185,13 @@
                 judul: judul,
                 isi: isi,
                 foto: foto,
-                tanggal: new Date().toLocaleString('id-ID')
+                tanggal: new Date().toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })
             }, (err) => {
                 if(err) return alert("Gagal mengirim!");
-                alert("Berhasil! Update telah dikirim ke HP Siswa.");
-                location.reload();
+                alert("Selesai! Informasi sudah terkirim ke semua HP Siswa.");
+                closeModal();
+                document.getElementById('postTitle').value = "";
+                document.getElementById('postContent').value = "";
             });
         }
 
