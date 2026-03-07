@@ -5,27 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jadwal Kebersihan - Siswa</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="/socket.io/socket.io.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background: #f0f4f8; padding: 20px; }
-        .container { max-width: 800px; margin: auto; }
-        header { background: #ff8c00; color: white; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .card-hari { background: white; margin-bottom: 12px; padding: 15px; border-radius: 12px; display: flex; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; }
-        .nama-hari { width: 100px; font-weight: 700; color: #1a5296; border-right: 2px solid #eee; margin-right: 15px; }
+        body { background: #f0f4f8; padding: 15px; }
+        .container { max-width: 600px; margin: auto; }
+        
+        header { 
+            background: linear-gradient(135deg, #ff8c00, #e67e22); 
+            color: white; padding: 25px; border-radius: 20px; 
+            text-align: center; margin-bottom: 20px; 
+            box-shadow: 0 10px 20px rgba(230, 126, 34, 0.2); 
+        }
+        header h2 { font-size: 20px; }
+        header p { font-size: 12px; opacity: 0.9; margin-top: 5px; }
+
+        .card-hari { 
+            background: white; margin-bottom: 12px; padding: 18px; 
+            border-radius: 15px; display: flex; align-items: center; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03); 
+            transition: 0.3s; border: 1px solid #eee;
+        }
+        
+        .nama-hari { 
+            width: 80px; font-weight: 700; color: #1a5296; 
+            border-right: 2px solid #f0f0f0; margin-right: 15px; 
+            font-size: 14px;
+        }
+
         .daftar-siswa { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
-        .badge-siswa { background: #e3f2fd; color: #1a5296; padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1px solid #bbdefb; }
-        .hari-ini { border: 2px solid #ff8c00; background: #fff9f0; transform: scale(1.02); }
-        .empty { color: #ccc; font-style: italic; font-size: 13px; }
-        .btn-back { display: inline-block; margin-bottom: 15px; text-decoration: none; color: #1a5296; font-weight: bold; }
+        
+        .badge-siswa { 
+            background: #f0f7ff; color: #1a5296; 
+            padding: 6px 14px; border-radius: 10px; 
+            font-size: 13px; font-weight: 600; 
+            border: 1px solid #d0e7ff; 
+        }
+
+        /* Penanda Hari Ini */
+        .hari-ini { 
+            border: 2px solid #ff8c00; 
+            background: #fffdfa; 
+            transform: scale(1.03); 
+            box-shadow: 0 8px 20px rgba(255, 140, 0, 0.15);
+        }
+        .hari-ini .nama-hari { color: #ff8c00; border-right-color: #ffe0b2; }
+        .tag-today { 
+            background: #ff8c00; color: white; 
+            font-size: 9px; padding: 2px 6px; 
+            border-radius: 5px; margin-left: 5px; 
+        }
+
+        .empty { color: #bbb; font-style: italic; font-size: 12px; }
+        .btn-back { 
+            display: inline-block; margin-bottom: 15px; 
+            text-decoration: none; color: #1a5296; 
+            font-weight: bold; font-size: 14px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <a href="siswa.html" class="btn-back">❮ Kembali</a>
+    <a href="siswa.html" class="btn-back">❮ Kembali ke Portal</a>
+    
     <header>
-        <h2>🧹 Jadwal Kebersihan Kelas</h2>
+        <h2>🧹 Jadwal Piket Kelas</h2>
         <p>SD NEGERI 62 TAJONG</p>
     </header>
 
@@ -34,22 +78,30 @@
 </div>
 
 <script>
-    const socket = io();
+    // ==========================================
+    // BAGIAN PENTING: TEMPEL KODE DARI ADMIN DISINI
+    // Contoh: const DATA_MASTER = {"Senin":["Andi","Budi"],"Selasa":["Siti"]};
+    // ==========================================
+    const DATA_MASTER = {}; 
+    // ==========================================
 
     function muatJadwal() {
         const container = document.getElementById('tampilanJadwal');
-        const data = JSON.parse(localStorage.getItem('jadwalSekolah')) || {};
-        const hariList = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        const hariList = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
         
-        // Ambil hari ini untuk highlight warna orange
-        const hariIniIndex = new Date().getDay(); 
-        const hariIniNama = hariList[hariIniIndex - 1];
+        // Cek hari ini
+        const tgl = new Date();
+        const hariIniIndex = tgl.getDay(); // 0 = Minggu, 1 = Senin, dst
+        const hariIniNama = hariList[hariIniIndex];
 
         container.innerHTML = ""; 
 
-        hariList.forEach(hari => {
-            const siswaArray = data[hari] || [];
-            const isToday = (hari === hariIniNama) ? "hari-ini" : "";
+        // Kita hanya tampilkan Senin sampai Sabtu
+        const hariKerja = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+
+        hariKerja.forEach(hari => {
+            const siswaArray = DATA_MASTER[hari] || [];
+            const isToday = (hari === hariIniNama);
 
             let htmlSiswa = "";
             if (siswaArray.length > 0) {
@@ -57,46 +109,23 @@
                     htmlSiswa += `<span class="badge-siswa">${s}</span>`;
                 });
             } else {
-                htmlSiswa = `<span class="empty">Belum ada jadwal</span>`;
+                htmlSiswa = `<span class="empty">Belum ada jadwal diatur oleh Guru</span>`;
             }
 
             container.innerHTML += `
-                <div class="card-hari ${isToday}">
-                    <div class="nama-hari">${hari}</div>
+                <div class="card-hari ${isToday ? 'hari-ini' : ''}">
+                    <div class="nama-hari">
+                        ${hari}
+                        ${isToday ? '<br><span class="tag-today">HARI INI</span>' : ''}
+                    </div>
                     <div class="daftar-siswa">${htmlSiswa}</div>
                 </div>
             `;
         });
     }
 
-    // --- LOGIKA SINKRONISASI REAL-TIME ---
-
-    // 1. Menerima update jadwal baru dari Guru
-    socket.on('terima_jadwal_baru', (dataJadwal) => {
-        console.log("Menerima update:", dataJadwal);
-        
-        let jadwalLokal = JSON.parse(localStorage.getItem('jadwalSekolah')) || {};
-        
-        // Simpan data hari yang baru diupdate
-        jadwalLokal[dataJadwal.hari] = dataJadwal.siswa;
-        
-        // Simpan ke memori HP siswa
-        localStorage.setItem('jadwalSekolah', JSON.stringify(jadwalLokal));
-        
-        // REFRESH TAMPILAN OTOMATIS
-        muatJadwal();
-    });
-
-    // 2. Menerima data awal saat pertama kali buka aplikasi
-    socket.on('sinkron_jadwal_awal', (dataMaster) => {
-        if (dataMaster && Object.keys(dataMaster).length > 0) {
-            localStorage.setItem('jadwalSekolah', JSON.stringify(dataMaster));
-            muatJadwal();
-        }
-    });
-
-    // Jalankan saat halaman dibuka
-    muatJadwal();
+    // Jalankan tampilan
+    window.onload = muatJadwal;
 </script>
 </body>
 </html>
