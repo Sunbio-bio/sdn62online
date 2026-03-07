@@ -3,64 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadwal Kebersihan - Siswa</title>
+    <title>Jadwal Piket Siswa - SDN 62 TAJONG</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background: #f0f4f8; padding: 15px; }
-        .container { max-width: 600px; margin: auto; }
+        body { background: #f0f7ff; padding: 20px; color: #333; }
+        .container { max-width: 550px; margin: auto; }
         
         header { 
-            background: linear-gradient(135deg, #ff8c00, #e67e22); 
+            background: linear-gradient(135deg, #1a5296, #003973); 
             color: white; padding: 25px; border-radius: 20px; 
-            text-align: center; margin-bottom: 20px; 
-            box-shadow: 0 10px 20px rgba(230, 126, 34, 0.2); 
+            text-align: center; margin-bottom: 25px; 
+            box-shadow: 0 8px 20px rgba(26, 82, 150, 0.2);
         }
-        header h2 { font-size: 20px; }
-        header p { font-size: 12px; opacity: 0.9; margin-top: 5px; }
+        header h2 { font-size: 20px; letter-spacing: 1px; }
+        header p { font-size: 11px; opacity: 0.8; margin-top: 5px; text-transform: uppercase; }
 
-        .card-hari { 
-            background: white; margin-bottom: 12px; padding: 18px; 
-            border-radius: 15px; display: flex; align-items: center; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03); 
-            transition: 0.3s; border: 1px solid #eee;
+        .card-piket { 
+            background: white; padding: 20px; border-radius: 18px; 
+            display: flex; align-items: center; margin-bottom: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
+            border: 1px solid #eef2f7; transition: 0.3s;
         }
         
-        .nama-hari { 
-            width: 80px; font-weight: 700; color: #1a5296; 
-            border-right: 2px solid #f0f0f0; margin-right: 15px; 
+        .hari-label { 
+            width: 85px; font-weight: 700; color: #1a5296; 
+            border-right: 2px solid #f0f4f8; margin-right: 18px; 
             font-size: 14px;
         }
 
-        .daftar-siswa { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
+        .siswa-container { flex: 1; display: flex; flex-wrap: wrap; gap: 8px; }
         
-        .badge-siswa { 
+        .nama-tag { 
             background: #f0f7ff; color: #1a5296; 
             padding: 6px 14px; border-radius: 10px; 
             font-size: 13px; font-weight: 600; 
-            border: 1px solid #d0e7ff; 
+            border: 1px solid #d0e1f9; 
         }
 
         /* Penanda Hari Ini */
         .hari-ini { 
-            border: 2px solid #ff8c00; 
-            background: #fffdfa; 
+            border: 2.5px solid #ff8c00; 
+            background: #fffcf5; 
             transform: scale(1.03); 
-            box-shadow: 0 8px 20px rgba(255, 140, 0, 0.15);
+            box-shadow: 0 10px 25px rgba(255, 140, 0, 0.1);
         }
-        .hari-ini .nama-hari { color: #ff8c00; border-right-color: #ffe0b2; }
-        .tag-today { 
-            background: #ff8c00; color: white; 
-            font-size: 9px; padding: 2px 6px; 
-            border-radius: 5px; margin-left: 5px; 
-        }
+        .hari-ini .hari-label { color: #ff8c00; border-right-color: #ffe8cc; }
+        .badge-today { background: #ff8c00; color: white; font-size: 9px; padding: 2px 6px; border-radius: 5px; margin-top: 4px; display: inline-block; }
 
-        .empty { color: #bbb; font-style: italic; font-size: 12px; }
-        .btn-back { 
-            display: inline-block; margin-bottom: 15px; 
-            text-decoration: none; color: #1a5296; 
-            font-weight: bold; font-size: 14px;
-        }
+        .btn-back { text-decoration: none; color: #1a5296; font-weight: 600; font-size: 14px; display: inline-block; margin-bottom: 20px; }
+        .empty-text { color: #bbb; font-size: 12px; font-style: italic; }
     </style>
 </head>
 <body>
@@ -69,63 +62,75 @@
     <a href="siswa.html" class="btn-back">❮ Kembali ke Portal</a>
     
     <header>
-        <h2>🧹 Jadwal Piket Kelas</h2>
+        <h2>🧹 Jadwal Piket</h2>
         <p>SD NEGERI 62 TAJONG</p>
     </header>
 
-    <div id="tampilanJadwal">
+    <div id="listJadwal">
         </div>
 </div>
 
 <script>
-    // ==========================================
-    // BAGIAN PENTING: TEMPEL KODE DARI ADMIN DISINI
-    // Contoh: const DATA_MASTER = {"Senin":["Andi","Budi"],"Selasa":["Siti"]};
-    // ==========================================
-    const DATA_MASTER = {}; 
-    // ==========================================
+    // Koneksi Ably
+    const ably = new Ably.Realtime('Lqd-SA.02uOJw:5Q9fS13uwWhBLZJsqF9XA4gjNMzowZHCq2jJ9kxDdx8');
+    const channel = ably.channels.get('piket-62-tajong');
 
-    function muatJadwal() {
-        const container = document.getElementById('tampilanJadwal');
-        const hariList = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+    // Ambil data dari memori HP siswa (jika ada)
+    let dataPiket = JSON.parse(localStorage.getItem('piket_storage_62')) || {};
+
+    function muatTampilan() {
+        const box = document.getElementById('listJadwal');
+        const hariList = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
         
-        // Cek hari ini
-        const tgl = new Date();
-        const hariIniIndex = tgl.getDay(); // 0 = Minggu, 1 = Senin, dst
-        const hariIniNama = hariList[hariIniIndex];
+        // Deteksi hari ini
+        const daftarHari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        const hariIni = daftarHari[new Date().getDay()];
 
-        container.innerHTML = ""; 
+        box.innerHTML = ""; 
 
-        // Kita hanya tampilkan Senin sampai Sabtu
-        const hariKerja = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        hariList.forEach(hari => {
+            const siswaArray = dataPiket[hari] || [];
+            const isToday = (hari === hariIni);
 
-        hariKerja.forEach(hari => {
-            const siswaArray = DATA_MASTER[hari] || [];
-            const isToday = (hari === hariIniNama);
-
-            let htmlSiswa = "";
+            let siswaHtml = "";
             if (siswaArray.length > 0) {
-                siswaArray.forEach(s => {
-                    htmlSiswa += `<span class="badge-siswa">${s}</span>`;
+                siswaArray.forEach(nama => {
+                    siswaHtml += `<span class="nama-tag">${nama}</span>`;
                 });
             } else {
-                htmlSiswa = `<span class="empty">Belum ada jadwal diatur oleh Guru</span>`;
+                siswaHtml = `<span class="empty-text">Belum ada jadwal</span>`;
             }
 
-            container.innerHTML += `
-                <div class="card-hari ${isToday ? 'hari-ini' : ''}">
-                    <div class="nama-hari">
+            box.innerHTML += `
+                <div class="card-piket ${isToday ? 'hari-ini' : ''}">
+                    <div class="hari-label">
                         ${hari}
-                        ${isToday ? '<br><span class="tag-today">HARI INI</span>' : ''}
+                        ${isToday ? '<br><span class="badge-today">HARI INI</span>' : ''}
                     </div>
-                    <div class="daftar-siswa">${htmlSiswa}</div>
+                    <div class="siswa-container">${siswaHtml}</div>
                 </div>
             `;
         });
     }
 
-    // Jalankan tampilan
-    window.onload = muatJadwal;
+    // BERLANGGANAN UPDATE DARI GURU
+    channel.subscribe('updatePiket', (message) => {
+        if(message.data.reset) {
+            dataPiket = {};
+        } else {
+            // Update hari tertentu
+            dataPiket[message.data.hari] = message.data.siswa;
+        }
+        
+        // Simpan ke memori HP agar saat ditutup tidak hilang
+        localStorage.setItem('piket_storage_62', JSON.stringify(dataPiket));
+        
+        // Render ulang tampilan tanpa refresh
+        muatTampilan();
+    });
+
+    // Jalankan saat pertama kali buka
+    window.onload = muatTampilan;
 </script>
 </body>
 </html>
