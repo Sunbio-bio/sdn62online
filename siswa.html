@@ -172,18 +172,29 @@
         function tutupModal() { document.getElementById('modalInfo').style.display = "none"; }
 
         window.onload = function() {
-            const user = localStorage.getItem('siswa') || localStorage.getItem('user');
-            if (user) {
+            // Mengambil data mentah dari penyimpanan
+            const rawData = localStorage.getItem('siswa') || localStorage.getItem('user') || sessionStorage.getItem('nama');
+            
+            if (rawData) {
+                let namaTampilan = "";
                 try {
-                    const obj = JSON.parse(user);
-                    document.getElementById("tampilNama").innerText = obj.nama || user;
-                } catch(e) { document.getElementById("tampilNama").innerText = user; }
-            } else { window.location.href = "login.html"; }
+                    // Mencoba membersihkan jika data berupa JSON {"user":"nama", ...}
+                    const parsed = JSON.parse(rawData);
+                    namaTampilan = parsed.nama || parsed.user || rawData;
+                } catch(e) {
+                    // Jika data bukan JSON (teks biasa), langsung gunakan
+                    namaTampilan = rawData;
+                }
+                document.getElementById("tampilNama").innerText = namaTampilan;
+            } else { 
+                window.location.href = "login.html"; 
+            }
         };
 
         function aksiLogout() {
             if(confirm("Yakin ingin keluar?")) {
                 localStorage.clear();
+                sessionStorage.clear();
                 window.location.href = "login.html";
             }
         }
