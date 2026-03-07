@@ -25,25 +25,26 @@
         .user-info h3 { font-size: 14px; opacity: 0.9; }
         .user-info p { font-size: 16px; font-weight: 700; color: #ffbc00; }
 
-        /* Container Grid Menu */
         .container {
             max-width: 900px; margin: 0 auto;
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.9); padding: 15px;
-            border-radius: 20px; text-align: center; transition: 0.3s;
+            background: rgba(255, 255, 255, 0.9); padding: 12px;
+            border-radius: 18px; text-align: center; transition: 0.3s;
             border: 2px solid white; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center;
         }
-        .card:hover { transform: translateY(-3px); border-color: #1a5296; }
+        .card:hover { transform: translateY(-3px); border-color: #1a5296; background: white; }
         
-        .card-icon { font-size: 28px; margin-bottom: 5px; background: #f0f7ff; width: 50px; height: 50px; line-height: 50px; border-radius: 50%; display:inline-block; }
-        .card h2 { color: #1a5296; font-size: 13px; font-weight: 700; }
-        .card p { color: #888; font-size: 9px; margin-bottom: 10px; }
+        .card-icon { font-size: 24px; margin-bottom: 5px; background: #f0f7ff; width: 45px; height: 45px; line-height: 45px; border-radius: 50%; }
+        .card h2 { color: #1a5296; font-size: 12px; font-weight: 700; }
+        .card p { color: #888; font-size: 9px; margin-bottom: 8px; }
 
-        /* Warna Tombol */
-        .btn-link { color: white; padding: 6px; border-radius: 8px; font-weight: 700; font-size: 10px; border: none; width: 100%; }
+        .btn-link { color: white; padding: 6px; border-radius: 8px; font-weight: 700; font-size: 10px; border: none; width: 100%; cursor: pointer; }
+        
+        /* Tema Warna */
         .blue { background: linear-gradient(135deg, #1e90ff, #1a5296); }
         .orange { background: linear-gradient(135deg, #ffa500, #ff8c00); }
         .green { background: linear-gradient(135deg, #2ed573, #26af5a); }
@@ -51,22 +52,17 @@
         .red { background: linear-gradient(135deg, #ff4757, #c0392b); }
         .gold { background: linear-gradient(135deg, #f1c40f, #f39c12); }
 
-        /* --- MODAL PENGUMUMAN --- */
+        /* --- MODAL INFO --- */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;
         }
         .modal-content {
             background: white; width: 90%; max-width: 450px; padding: 25px;
             border-radius: 25px; position: relative; text-align: center;
-            animation: popUp 0.3s ease;
         }
-        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
         .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #aaa; }
         .modal-img { width: 100%; border-radius: 15px; margin: 15px 0; display: none; max-height: 250px; object-fit: cover; }
-        #m-judul { color: #1a5296; margin-bottom: 10px; }
-        #m-isi { font-size: 14px; color: #444; line-height: 1.5; }
 
         @media (min-width: 600px) { .container { grid-template-columns: repeat(3, 1fr); } }
     </style>
@@ -78,7 +74,7 @@
             <h3>PORTAL SISWA 🎓</h3>
             <p id="tampilNama">Memuat...</p>
         </div>
-        <button style="background:none; border:1px solid white; color:white; padding:5px 10px; border-radius:10px; font-size:10px;" onclick="aksiLogout()">Logout</button>
+        <button style="background:none; border:1px solid white; color:white; padding:5px 10px; border-radius:10px; font-size:10px;" onclick="aksiLogout()">Keluar</button>
     </header>
 
     <div class="container">
@@ -99,8 +95,15 @@
         <div class="card" onclick="lihatUpdate('PRESTASI')">
             <div class="card-icon">⭐</div>
             <h2>Prestasi</h2>
-            <p>Juara Kelas & Lomba</p>
+            <p>Juara & Lomba</p>
             <button class="btn-link gold">BANGGA</button>
+        </div>
+
+        <div class="card" onclick="location.href='https://sunbio-bio.github.io/monitoring-siswa/'">
+            <div class="card-icon">🧠</div>
+            <h2>Asah Otak</h2>
+            <p>Kuis Interaktif</p>
+            <button class="btn-link orange">MAIN</button>
         </div>
 
         <div class="card" onclick="location.href='kelas-digital.html'">
@@ -114,7 +117,7 @@
             <div class="card-icon">🧹</div>
             <h2>Jadwal Piket</h2>
             <p>Harian Siswa</p>
-            <button class="btn-link orange">CEK</button>
+            <button class="btn-link blue">CEK</button>
         </div>
 
         <div class="card" onclick="location.href='forum.html'">
@@ -130,7 +133,7 @@
             <span class="close-modal" onclick="tutupModal()">&times;</span>
             <h5 id="m-tipe" style="font-size: 10px; color: #ff8c00; text-transform: uppercase;"></h5>
             <h3 id="m-judul">Belum Ada Informasi</h3>
-            <p id="m-isi">Bapak/Ibu Guru belum mengirimkan update untuk kategori ini.</p>
+            <p id="m-isi">Bapak/Ibu Guru belum mengirimkan update.</p>
             <img id="m-img" src="" class="modal-img">
             <p id="m-tgl" style="font-size: 9px; color: #bbb; margin-top: 15px;"></p>
         </div>
@@ -140,51 +143,34 @@
         const ably = new Ably.Realtime('Lqd-SA.02uOJw:5Q9fS13uwWhBLZJsqF9XA4gjNMzowZHCq2jJ9kxDdx8');
         const channel = ably.channels.get('update-sekolah');
 
-        // Berlangganan Update
         channel.subscribe('infoBaru', function(message) {
             const data = message.data;
-            // Simpan berdasarkan kategori
             localStorage.setItem('update_' + data.tipe, JSON.stringify(data));
-            
-            // OTOMATIS MUNCUL (Pop Up) saat guru kirim!
             tampilkanModal(data);
         });
 
         function lihatUpdate(tipe) {
-            const dataSering = localStorage.getItem('update_' + tipe);
-            if(dataSering) {
-                tampilkanModal(JSON.parse(dataSering));
+            const saved = localStorage.getItem('update_' + tipe);
+            if(saved) {
+                tampilkanModal(JSON.parse(saved));
             } else {
-                // Jika belum ada data tersimpan
-                document.getElementById('m-tipe').innerText = tipe;
-                document.getElementById('m-judul').innerText = "Kosong";
-                document.getElementById('m-isi').innerText = "Belum ada update terbaru untuk kategori ini.";
-                document.getElementById('m-img').style.display = "none";
-                document.getElementById('modalInfo').style.display = "flex";
+                alert("Belum ada update untuk kategori " + tipe);
             }
         }
 
         function tampilkanModal(data) {
-            document.getElementById('m-tipe').innerText = "Update Baru: " + data.tipe;
+            document.getElementById('m-tipe').innerText = "Kategori: " + data.tipe;
             document.getElementById('m-judul').innerText = data.judul;
             document.getElementById('m-isi').innerText = data.isi;
-            document.getElementById('m-tgl').innerText = "Dikirim: " + data.tanggal;
-            
+            document.getElementById('m-tgl').innerText = "Waktu: " + data.tanggal;
             const img = document.getElementById('m-img');
-            if(data.foto) {
-                img.src = data.foto;
-                img.style.display = "block";
-            } else {
-                img.style.display = "none";
-            }
+            if(data.foto) { img.src = data.foto; img.style.display = "block"; } 
+            else { img.style.display = "none"; }
             document.getElementById('modalInfo').style.display = "flex";
         }
 
-        function tutupModal() {
-            document.getElementById('modalInfo').style.display = "none";
-        }
+        function tutupModal() { document.getElementById('modalInfo').style.display = "none"; }
 
-        // Ambil Nama Siswa
         window.onload = function() {
             const user = localStorage.getItem('siswa') || localStorage.getItem('user');
             if (user) {
@@ -196,7 +182,7 @@
         };
 
         function aksiLogout() {
-            if(confirm("Keluar dari portal?")) {
+            if(confirm("Yakin ingin keluar?")) {
                 localStorage.clear();
                 window.location.href = "login.html";
             }
