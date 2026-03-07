@@ -10,7 +10,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { background-color: #f4f7fa; color: #333; overflow-x: hidden; }
 
-        /* --- SIDEBAR --- */
+        /* --- SIDEBAR MENU --- */
         .sidebar {
             position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
             background: #1a5296; color: white; transition: 0.3s; z-index: 2000;
@@ -42,27 +42,26 @@
 
         /* --- CONTENT --- */
         .hero { display: flex; align-items: center; justify-content: space-between; padding: 40px 5%; background: white; margin-bottom: 30px; gap: 30px; }
-        .hero-content h1 { font-size: 28px; color: #1a5296; }
-        .hero-img img { width: 100%; max-width: 350px; border-radius: 20px; }
+        .hero-content h1 { font-size: 32px; color: #1a5296; }
+        .hero-img img { width: 100%; max-width: 400px; border-radius: 20px; }
 
         .small-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 0 5% 50px; }
         .s-card { background: white; padding: 25px; border-radius: 15px; display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: 0.3s; cursor: pointer; border: 1px solid transparent; }
         .s-card:hover { transform: translateY(-5px); border-color: #1a5296; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
         .icon { font-size: 35px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 15px; }
-        .red { background: #ffe3e3; } .blue { background: #e3f2fd; } .green { background: #e8f5e9; }
+        .red { background: #ffe3e3; } .blue { background: #e3f2fd; } .gold { background: #fff9db; } .green { background: #e8f5e9; }
 
-        /* --- MODAL --- */
+        /* --- MODAL INPUT --- */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; align-items: center; justify-content: center; }
         .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; position: relative; }
         .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; }
-        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
         .btn-post { width: 100%; background: #1a5296; color: white; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
 
-        .footer { text-align: center; padding: 40px; color: #999; font-size: 11px; }
+        .footer { text-align: center; padding: 40px; color: #999; font-size: 12px; }
 
         @media (max-width: 768px) {
-            .hero { flex-direction: column; text-align: center; padding: 20px; }
-            .hero-content h1 { font-size: 22px; }
+            .hero { flex-direction: column; text-align: center; }
             .logo-area span { display: none; }
         }
     </style>
@@ -76,22 +75,30 @@
         <a href="kelas-digital.html?role=guru"><span>💻</span> Dashboard Guru</a>
         <a href="https://bit.ly/riski62admin" target="_blank"><span>📊</span> Monitoring Guru</a>
         <a href="admin-piket.html"><span>🧹</span> Jadwal Kebersihan</a>
+        <a href="#" onclick="alert('Fitur Bank Soal segera hadir!')"><span>📝</span> Bank Soal</a>
         <a onclick="bukaForum()"><span>💬</span> Forum Diskusi</a>
-        <a href="#" onclick="aksiLogout()" class="logout-link"><span>🚪</span> Logout</a>
+        
+        <a href="#" onclick="aksiLogout()" class="logout-link"><span>🚪</span> Keluar / Logout</a>
     </nav>
 
     <header class="top-bar">
-        <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="display: flex; align-items: center; gap: 20px;">
             <div class="menu-toggle" onclick="toggleMenu()">☰</div>
-            <div class="logo-area">🎓 <span>SDN 62 TAJONG</span></div>
+            <div class="logo-area">
+                <div class="logo-icon">🎓</div>
+                <span>SD NEGERI 62 TAJONG</span>
+            </div>
         </div>
-        <div id="connectionStatus" style="font-size: 10px; color: red;">Connecting Ably...</div>
+        <div class="user-area" style="font-size: 14px; display: flex; align-items: center; gap: 10px;">
+            <span>Admin <strong>Guru</strong></span>
+            <div style="width: 35px; height: 35px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center;">👤</div>
+        </div>
     </header>
 
     <section class="hero">
         <div class="hero-content">
-            <h1>Halo, Admin Guru!</h1>
-            <p>Kirim informasi real-time ke aplikasi siswa.</p>
+            <h1>Halo, Bapak/Ibu Guru!</h1>
+            <p>Kelola sekolah dan kirim update real-time ke HP Siswa dengan mudah.</p>
         </div>
         <div class="hero-img"><img src="sekolahku.jpg.jpeg" alt="Sekolah"></div>
     </section>
@@ -99,48 +106,55 @@
     <section class="small-cards">
         <div class="s-card" onclick="openModal('PENGUMUMAN')">
             <span class="icon red">📢</span>
-            <div class="s-text"><strong>Kirim Pengumuman</strong><p>Info penting siswa</p></div>
+            <div class="s-text">
+                <strong>Kirim Pengumuman</strong>
+                <p>Muncul di HP Siswa</p>
+            </div>
         </div>
         <div class="s-card" onclick="openModal('KEGIATAN')">
             <span class="icon blue">ℹ️</span>
-            <div class="s-text"><strong>Update Kegiatan</strong><p>Berita sekolah</p></div>
+            <div class="s-text">
+                <strong>Update Kegiatan</strong>
+                <p>Berita & Peraturan</p>
+            </div>
         </div>
         <div class="s-card" onclick="bukaForum()">
             <span class="icon green">💬</span>
-            <div class="s-text"><strong>Forum Diskusi</strong><p>Chat dg Siswa</p></div>
+            <div class="s-text">
+                <strong>Forum Diskusi</strong>
+                <p>Chat Langsung dg Siswa</p>
+            </div>
         </div>
     </section>
 
     <div id="modalUpdate" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
-            <h2 id="modalTitle">Tambah Update</h2>
-            <input type="text" id="postTitle" placeholder="Judul...">
-            <textarea id="postContent" rows="4" placeholder="Isi pesan..."></textarea>
+            <h2 id="modalTitle" style="color:#1a5296; margin-bottom:15px;">Tambah Update</h2>
+            <input type="text" id="postTitle" placeholder="Judul Informasi...">
+            <textarea id="postContent" rows="4" placeholder="Ketik isi pengumuman di sini..."></textarea>
+            <label style="font-size: 12px; color: gray;">Lampirkan Foto (Opsional):</label>
             <input type="file" id="postFile" accept="image/*">
-            <button class="btn-post" id="btnKirim" onclick="kirimUpdate()">🚀 Publikasikan</button>
+            <button class="btn-post" onclick="kirimUpdate()">🚀 Publikasikan Sekarang</button>
         </div>
     </div>
 
-    <footer class="footer">Portal Digital Guru © 2026 | Developed by Riski OPS</footer>
+    <footer class="footer">Portal Digital Guru © 2026 | Developed by Riski OPS 62 Tajong</footer>
 
     <script>
+        // KONEKSI ABLY
         const ably = new Ably.Realtime('Lqd-SA.02uOJw:5Q9fS13uwWhBLZJsqF9XA4gjNMzowZHCq2jJ9kxDdx8');
         const channel = ably.channels.get('update-sekolah');
         let currentType = "";
-
-        // Cek Koneksi
-        ably.connection.on('connected', () => {
-            document.getElementById('connectionStatus').innerText = "Ably: Connected";
-            document.getElementById('connectionStatus').style.color = "green";
-        });
 
         function toggleMenu() {
             document.getElementById("sidebar").classList.toggle("active");
             document.getElementById("overlay").classList.toggle("active");
         }
 
+        // FUNGSI AKTIF FORUM DISKUSI
         function bukaForum() {
+            // Mengarahkan ke forum.html dengan tanda bahwa ini adalah Guru
             window.location.href = "forum.html?user=GuruAdmin";
         }
 
@@ -158,17 +172,15 @@
             const judul = document.getElementById('postTitle').value;
             const isi = document.getElementById('postContent').value;
             const fileInput = document.getElementById('postFile');
-            const btn = document.getElementById('btnKirim');
-
-            if (!judul || !isi) return alert("Isi semua data!");
             
-            btn.disabled = true;
-            btn.innerText = "Mengirim...";
+            if (!judul || !isi) return alert("Harap isi Judul dan Pesan!");
 
             if (fileInput.files[0]) {
                 const reader = new FileReader();
                 reader.readAsDataURL(fileInput.files[0]);
-                reader.onload = () => publishData(judul, isi, reader.result);
+                reader.onload = function () {
+                    publishData(judul, isi, reader.result);
+                };
             } else {
                 publishData(judul, isi, null);
             }
@@ -180,18 +192,18 @@
                 judul: judul,
                 isi: isi,
                 foto: foto,
-                tanggal: new Date().toLocaleString('id-ID')
+                tanggal: new Date().toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })
             }, (err) => {
-                document.getElementById('btnKirim').disabled = false;
-                document.getElementById('btnKirim').innerText = "🚀 Publikasikan";
-                if(err) return alert("Gagal kirim! Gambar mungkin terlalu besar.");
-                alert("Berhasil dikirim!");
+                if(err) return alert("Gagal mengirim!");
+                alert("Selesai! Informasi sudah terkirim ke HP Siswa.");
                 closeModal();
+                document.getElementById('postTitle').value = "";
+                document.getElementById('postContent').value = "";
             });
         }
 
         function aksiLogout() {
-            if(confirm("Logout?")) {
+            if(confirm("Yakin ingin keluar?")) {
                 sessionStorage.clear();
                 window.location.href = "login.html";
             }
