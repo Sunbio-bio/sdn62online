@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Jadwal - Guru SDN 62 TAJONG</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: #f4f7fa; padding: 20px; }
+        .box { background: white; max-width: 650px; margin: auto; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h2 { color: #1a5296; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; text-align: center; }
+        
+        label { display: block; margin-top: 15px; font-weight: 600; color: #555; }
+        select, input { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
+        
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-save { flex: 2; background: #27ae60; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-save:hover { background: #219150; transform: translateY(-2px); }
+        .btn-reset { flex: 1; background: #e74c3c; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        
+        .preview-area { margin-top: 30px; border-top: 2px dashed #ddd; padding-top: 20px; }
+        .preview-title { font-weight: bold; color: #1a5296; margin-bottom: 15px; display: block; }
+        .hari-item { background: #f9f9f9; padding: 12px; margin-bottom: 8px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #ff8c00; }
+        .hari-nama { font-weight: bold; color: #333; min-width: 80px; }
+        .daftar-nama { flex: 1; font-size: 14px; color: #666; padding-left: 10px; }
+        
+        .btn-back { display: inline-block; margin-bottom: 15px; text-decoration: none; color: #1a5296; font-size: 14px; font-weight: bold; }
+        .info-teks { font-size: 12px; color: #888; margin-top: 10px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <a href="index.html" class="btn-back">❮ Kembali ke Dashboard</a>
+    <h2>🛠 Kelola Jadwal Piket</h2>
+    
+    <label>Pilih Hari:</label>
+    <select id="pilihHari">
+        <option value="Senin">Senin</option>
+        <option value="Selasa">Selasa</option>
+        <option value="Rabu">Rabu</option>
+        <option value="Kamis">Kamis</option>
+        <option value="Jumat">Jumat</option>
+        <option value="Sabtu">Sabtu</option>
+    </select>
+
+    <label>Nama Siswa (Gunakan koma untuk banyak nama):</label>
+    <input type="text" id="inputNama" placeholder="Contoh: Ahmad, Siti, Budi, Iwan">
+    <p class="info-teks">*Ketik nama-nama siswa yang piket pada hari tersebut.</p>
+    
+    <div class="btn-group">
+        <button onclick="simpanJadwal()" class="btn-save">💾 Simpan & Sinkron ke Siswa</button>
+        <button onclick="hapusSemua()" class="btn-reset">🗑 Reset</button>
+    </div>
+
+    <div class="preview-area">
+        <span class="preview-title">Preview Jadwal di HP Siswa:</span>
+        <div id="listPreview">
+            <p style="text-align:center; color:#ccc;">Belum ada jadwal yang diisi.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Inisialisasi Socket
+    const socket = io();
+
+    // 2. Fungsi Menampilkan Jadwal (Preview)
+    function renderPreview() {
+        const display = document.getElementById('listPreview');
+        const data = JSON.parse(localStorage.getItem('jadwalSekolah')) || {};
+        const hariList = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        
+        display.innerHTML = "";
+        
+        let adaData = false;
+        hariList.forEach(hari => {
+            if(data[hari] && data[hari].length > 0) {
+                adaData = true;
+                display.innerHTML += `
+                    <div class="hari-item">
+                        <span class="hari-nama">${hari}</span>
+                        <span class="daftar-nama">${data[hari].join(', ')}</span>
+                    </div>
+                `;
+            }
+        });
+
+        if(!adaData) {
+            display.innerHTML = '<p style="text-align:center; color:#ccc; font-size:13px;">Belum ada jadwal tersimpan.</p>';
+        }
+    }
+
+    // 3. FUNGSI UTAMA: SIMPAN & KIRIM
+    function simpanJadwal() {
+        const hari = document.getElementById('pilihHari').value;
+        const namaInput = document.getElementById('inputNama').value;
+        
+        if(!namaInput.trim()) {
+            alert("Harap masukkan nama siswa terlebih dahulu!");
+            return;
+        }
+
+        // Pecah teks jadi array
+        const daftarSiswa = namaInput.split(',').map(n => n.trim()).filter(n => n !== "");
+
+        // A. Simpan di Browser Guru
+        let jadwalData = JSON.parse(localStorage.getItem('jadwalSekolah')) || {};
+        jadwalData[hari] = daftarSiswa;
+        localStorage.setItem('jadwalSekolah', JSON.stringify(jadwalData));
+
+        // B. KIRIM KE SERVER (Agar HP Siswa Berubah)
+        socket.emit('update_jadwal_piket', {
+            hari: hari,
+            siswa: daftarSiswa
+        });
+
+        // C. Feedback
+        alert("Berhasil! Jadwal hari " + hari + " sudah diperbarui.");
+        document.getElementById('inputNama').value = ""; 
+        renderPreview();
+    }
+
+    // 4. Fungsi Reset Semua
+    function hapusSemua() {
+        if(confirm("Apakah Anda yakin ingin menghapus SEMUA jadwal piket?")) {
+            localStorage.removeItem('jadwalSekolah');
+            // Beritahu server agar HP siswa juga kosong
+            socket.emit('update_jadwal_piket', { reset: true });
+            renderPreview();
+            alert("Semua jadwal telah dihapus!");
+        }
+    }
+
+    // Jalankan preview saat halaman dibuka
+    window.onload = renderPreview;
+</script>
+
+</body>
+</html>

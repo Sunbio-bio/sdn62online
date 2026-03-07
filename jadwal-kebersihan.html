@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Kebersihan - Siswa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: #f0f4f8; padding: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        header { background: #ff8c00; color: white; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .card-hari { background: white; margin-bottom: 12px; padding: 15px; border-radius: 12px; display: flex; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; }
+        .nama-hari { width: 100px; font-weight: 700; color: #1a5296; border-right: 2px solid #eee; margin-right: 15px; }
+        .daftar-siswa { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
+        .badge-siswa { background: #e3f2fd; color: #1a5296; padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1px solid #bbdefb; }
+        .hari-ini { border: 2px solid #ff8c00; background: #fff9f0; transform: scale(1.02); }
+        .empty { color: #ccc; font-style: italic; font-size: 13px; }
+        .btn-back { display: inline-block; margin-bottom: 15px; text-decoration: none; color: #1a5296; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="siswa.html" class="btn-back">❮ Kembali</a>
+    <header>
+        <h2>🧹 Jadwal Kebersihan Kelas</h2>
+        <p>SD NEGERI 62 TAJONG</p>
+    </header>
+
+    <div id="tampilanJadwal">
+        </div>
+</div>
+
+<script>
+    const socket = io();
+
+    function muatJadwal() {
+        const container = document.getElementById('tampilanJadwal');
+        const data = JSON.parse(localStorage.getItem('jadwalSekolah')) || {};
+        const hariList = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        
+        // Ambil hari ini untuk highlight warna orange
+        const hariIniIndex = new Date().getDay(); 
+        const hariIniNama = hariList[hariIniIndex - 1];
+
+        container.innerHTML = ""; 
+
+        hariList.forEach(hari => {
+            const siswaArray = data[hari] || [];
+            const isToday = (hari === hariIniNama) ? "hari-ini" : "";
+
+            let htmlSiswa = "";
+            if (siswaArray.length > 0) {
+                siswaArray.forEach(s => {
+                    htmlSiswa += `<span class="badge-siswa">${s}</span>`;
+                });
+            } else {
+                htmlSiswa = `<span class="empty">Belum ada jadwal</span>`;
+            }
+
+            container.innerHTML += `
+                <div class="card-hari ${isToday}">
+                    <div class="nama-hari">${hari}</div>
+                    <div class="daftar-siswa">${htmlSiswa}</div>
+                </div>
+            `;
+        });
+    }
+
+    // --- LOGIKA SINKRONISASI REAL-TIME ---
+
+    // 1. Menerima update jadwal baru dari Guru
+    socket.on('terima_jadwal_baru', (dataJadwal) => {
+        console.log("Menerima update:", dataJadwal);
+        
+        let jadwalLokal = JSON.parse(localStorage.getItem('jadwalSekolah')) || {};
+        
+        // Simpan data hari yang baru diupdate
+        jadwalLokal[dataJadwal.hari] = dataJadwal.siswa;
+        
+        // Simpan ke memori HP siswa
+        localStorage.setItem('jadwalSekolah', JSON.stringify(jadwalLokal));
+        
+        // REFRESH TAMPILAN OTOMATIS
+        muatJadwal();
+    });
+
+    // 2. Menerima data awal saat pertama kali buka aplikasi
+    socket.on('sinkron_jadwal_awal', (dataMaster) => {
+        if (dataMaster && Object.keys(dataMaster).length > 0) {
+            localStorage.setItem('jadwalSekolah', JSON.stringify(dataMaster));
+            muatJadwal();
+        }
+    });
+
+    // Jalankan saat halaman dibuka
+    muatJadwal();
+</script>
+</body>
+</html>

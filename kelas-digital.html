@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelas Digital - SD NEGERI 62 TAJONG</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: #f0f4f8; color: #333; padding-bottom: 50px; }
+        header { background: #1a5296; color: white; padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .btn-back { text-decoration: none; color: white; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 8px; font-weight: bold; }
+        .main-content { padding: 30px 5%; max-width: 1100px; margin: 0 auto; }
+
+        /* Panel Admin */
+        #btnTambahContainer { margin-bottom: 20px; display: none; }
+        .admin-panel { background: white; padding: 25px; border-radius: 20px; margin-bottom: 30px; border: 2px solid #1a5296; box-shadow: 0 10px 25px rgba(0,0,0,0.05); display: none; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; margin-top: 5px; outline: none; }
+        textarea { grid-column: span 2; }
+        .upload-box { grid-column: span 2; background: #f9f9f9; border: 2px dashed #ccc; padding: 20px; border-radius: 10px; text-align: center; cursor: pointer; }
+        .btn-save { grid-column: span 2; background: #28a745; color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px; }
+
+        /* Filter Kelas */
+        .filter-container { margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .btn-filter { padding: 10px 20px; border-radius: 30px; border: 1px solid #1a5296; background: white; color: #1a5296; cursor: pointer; font-weight: 600; transition: 0.3s; }
+        .btn-filter.active, .btn-filter:hover { background: #1a5296; color: white; }
+
+        /* Kartu Materi */
+        .materi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
+        .materi-card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: relative; border-bottom: 5px solid #1a5296; }
+        .materi-card .tag { background: #ff8c00; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-right: 5px; }
+        .materi-card .class-tag { background: #1a5296; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+        .materi-card h3 { margin-top: 15px; color: #1a5296; }
+        .file-link { display: inline-block; background: #eef2f7; color: #1a5296; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; margin-top: 10px; border: 1px solid #1a5296; }
+        .btn-delete { background: #ff4757; color: white; border: none; padding: 5px 12px; border-radius: 8px; cursor: pointer; position: absolute; top: 20px; right: 20px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div>
+        <h1>💻 Kelas Digital</h1>
+        <p>SD NEGERI 62 TAJONG</p>
+    </div>
+    <a href="javascript:history.back()" class="btn-back">❮ Kembali</a>
+</header>
+
+<div class="main-content">
+    
+    <div id="btnTambahContainer">
+        <button onclick="toggleForm()" id="btnTampilForm" style="background:#1a5296; color:white; border:none; padding:12px 25px; border-radius:10px; font-weight:bold; cursor:pointer;">+ Tambah Materi Baru</button>
+    </div>
+
+    <div id="panelGuru" class="admin-panel">
+        <h2>📝 Form Input Materi Wali Kelas</h2>
+        <div class="form-grid">
+            <select id="pilihKelas">
+                <option value="">-- Pilih Kelas --</option>
+                <option value="Kelas 1">Kelas 1</option>
+                <option value="Kelas 2">Kelas 2</option>
+                <option value="Kelas 3">Kelas 3</option>
+                <option value="Kelas 4">Kelas 4</option>
+                <option value="Kelas 5">Kelas 5</option>
+                <option value="Kelas 6">Kelas 6</option>
+            </select>
+            <input type="text" id="mapel" placeholder="Mata Pelajaran">
+            <input type="text" id="waliKelas" placeholder="Nama Guru / Wali Kelas">
+            <input type="text" id="judul" placeholder="Judul Materi / Tugas">
+            <textarea id="deskripsi" rows="4" placeholder="Tuliskan isi materi atau petunjuk tugas di sini..."></textarea>
+            
+            <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+                <p id="fileName">📁 Klik untuk Upload Lampiran (Gambar/PDF)</p>
+                <input type="file" id="fileInput" hidden onchange="handleFile(this)">
+            </div>
+            <button class="btn-save" onclick="simpanMateri()">Terbitkan Materi ❯</button>
+        </div>
+    </div>
+
+    <h2 style="margin-bottom: 15px; color: #1a5296;">Pilih Kelas Anda:</h2>
+    <div class="filter-container">
+        <button class="btn-filter active" onclick="filterMateri('Semua')">Semua</button>
+        <button class="btn-filter" onclick="filterMateri('Kelas 1')">Kelas 1</button>
+        <button class="btn-filter" onclick="filterMateri('Kelas 2')">Kelas 2</button>
+        <button class="btn-filter" onclick="filterMateri('Kelas 3')">Kelas 3</button>
+        <button class="btn-filter" onclick="filterMateri('Kelas 4')">Kelas 4</button>
+        <button class="btn-filter" onclick="filterMateri('Kelas 5')">Kelas 5</button>
+        <button class="btn-filter" onclick="filterMateri('Kelas 6')">Kelas 6</button>
+    </div>
+
+    <div id="materiContainer" class="materi-grid"></div>
+</div>
+
+<script>
+    let fileBase64 = "";
+
+    // Deteksi Role
+    const urlParams = new URLSearchParams(window.location.search);
+    const isGuru = (urlParams.get('role') === "guru" || sessionStorage.getItem("role") === "guru" || document.referrer.includes("index.html"));
+
+    if(isGuru) {
+        document.getElementById('btnTambahContainer').style.display = 'block';
+    }
+
+    function toggleForm() {
+        const panel = document.getElementById('panelGuru');
+        const btn = document.getElementById('btnTampilForm');
+        panel.style.display = (panel.style.display === "block") ? "none" : "block";
+        btn.innerText = (panel.style.display === "block") ? "✖ Tutup Form" : "+ Tambah Materi Baru";
+    }
+
+    function handleFile(input) {
+        const file = input.files[0];
+        if (file) {
+            document.getElementById('fileName').innerText = "✅ File: " + file.name;
+            const reader = new FileReader();
+            reader.onload = (e) => fileBase64 = e.target.result;
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function simpanMateri() {
+        const data = {
+            id: Date.now(),
+            kelas: document.getElementById('pilihKelas').value,
+            mapel: document.getElementById('mapel').value,
+            wali: document.getElementById('waliKelas').value,
+            judul: document.getElementById('judul').value,
+            desk: document.getElementById('deskripsi').value,
+            file: fileBase64
+        };
+
+        if(!data.kelas || !data.judul) return alert("Pilih Kelas dan isi Judul!");
+
+        let list = JSON.parse(localStorage.getItem("dataMateri")) || [];
+        list.unshift(data);
+        localStorage.setItem("dataMateri", JSON.stringify(list));
+        alert("Materi Kelas Berhasil Diterbitkan!");
+        location.reload();
+    }
+
+    function filterMateri(kategori) {
+        // Atur tombol aktif
+        const buttons = document.querySelectorAll('.btn-filter');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        tampilkanMateri(kategori);
+    }
+
+    function tampilkanMateri(filter = "Semua") {
+        const list = JSON.parse(localStorage.getItem("dataMateri")) || [];
+        const container = document.getElementById('materiContainer');
+        
+        // Saring berdasarkan kelas
+        const dataTersaring = (filter === "Semua") ? list : list.filter(m => m.kelas === filter);
+
+        if (dataTersaring.length === 0) {
+            container.innerHTML = `<p style='text-align:center; grid-column: 1/-1; padding: 40px; color: #999;'>Belum ada materi untuk ${filter}.</p>`;
+            return;
+        }
+        
+        container.innerHTML = "";
+        dataTersaring.forEach(m => {
+            container.innerHTML += `
+                <div class="materi-card">
+                    ${isGuru ? `<button class="btn-delete" onclick="hapusMateri(${m.id})">Hapus</button>` : ''}
+                    <span class="class-tag">${m.kelas}</span>
+                    <span class="tag">${m.mapel}</span>
+                    <h3>${m.judul}</h3>
+                    <p>${m.desk}</p>
+                    <small>Wali Kelas: <strong>${m.wali}</strong></small><br>
+                    ${m.file ? `<a href="${m.file}" download="Materi-${m.kelas}" class="file-link">📥 Download Lampiran</a>` : ''}
+                </div>`;
+        });
+    }
+
+    function hapusMateri(id) {
+        if(confirm("Hapus materi ini?")) {
+            let list = JSON.parse(localStorage.getItem("dataMateri")).filter(m => m.id !== id);
+            localStorage.setItem("dataMateri", JSON.stringify(list));
+            location.reload();
+        }
+    }
+
+    window.onload = () => tampilkanMateri("Semua");
+</script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Siswa - SD NEGERI 62 TAJONG</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body {
+            background: #f0f7ff url('sekolahku.jpg.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            background-blend-mode: overlay;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            background: #1a5296;
+            color: white;
+            padding: 15px 5%;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-logout {
+            background: #ff4757; color: white; border: none; padding: 8px 15px;
+            border-radius: 8px; cursor: pointer; font-weight: bold;
+        }
+
+        .container {
+            max-width: 1000px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white; padding: 25px; border-radius: 20px; text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05); transition: 0.3s;
+            border: 2px solid transparent; display: flex; flex-direction: column;
+            justify-content: space-between; cursor: pointer;
+        }
+
+        .card:hover { transform: translateY(-10px); border-color: #1a5296; }
+        .card-icon { font-size: 50px; margin-bottom: 15px; }
+        .card h2 { color: #333; font-size: 20px; margin-bottom: 5px; }
+        .card p { color: #666; font-size: 13px; margin-bottom: 20px; }
+
+        .btn-link {
+            text-decoration: none; color: white; padding: 12px;
+            border-radius: 10px; font-weight: bold; display: block; transition: 0.2s;
+            border: none; width: 100%; cursor: pointer; font-size: 14px;
+        }
+
+        .blue { background: #1e90ff; }
+        .orange { background: #ffa500; }
+        .green { background: #2ed573; }
+        .purple { background: #a55eea; }
+        .light-blue { background: #70a1ff; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h3 style="font-size: 16px;">PORTAL SISWA DIGITAL</h3>
+            <p id="tampilNama" style="font-size: 12px;">Memuat data...</p>
+        </div>
+        <button class="btn-logout" onclick="aksiLogout()">✖ Keluar</button>
+    </header>
+
+    <div class="container">
+        <div class="card" onclick="location.href='kelas-digital.html'">
+            <div>
+                <div class="card-icon">💻</div>
+                <h2>Kelas Digital</h2>
+                <p>Materi & Tugas Belajar</p>
+            </div>
+            <button class="btn-link blue">Masuk Kelas ❯</button>
+        </div>
+
+        <div class="card" onclick="location.href='https://bit.ly/riski62siswaku'">
+            <div>
+                <div class="card-icon">🧠</div>
+                <h2>Asah Otak</h2>
+                <p>Kuis Interaktif Real-Time</p>
+            </div>
+            <button class="btn-link orange">Main Sekarang ❯</button>
+        </div>
+
+        <div class="card" onclick="location.href='jadwal-kebersihan.html'">
+            <div>
+                <div class="card-icon">🧹</div>
+                <h2>Jadwal Piket</h2>
+                <p>Cek Jadwal Piket Harian</p>
+            </div>
+            <button class="btn-link purple">Lihat Jadwal ❯</button>
+        </div>
+
+        <div class="card" onclick="bukaForum()">
+            <div>
+                <div class="card-icon">💬</div>
+                <h2>Forum Diskusi</h2>
+                <p>Tanya Guru & Interaksi Siswa</p>
+            </div>
+            <button class="btn-link light-blue">Gabung Forum ❯</button>
+        </div>
+
+        <div class="card" onclick="alert('Fitur Bank Soal segera hadir!')">
+            <div>
+                <div class="card-icon">📝</div>
+                <h2>Bank Soal</h2>
+                <p>Latihan Soal & Ulangan</p>
+            </div>
+            <button class="btn-link green">Kerjakan Soal ❯</button>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+
+        function ambilNamaSiswa() {
+            const data = localStorage.getItem('siswa') || localStorage.getItem('user') || sessionStorage.getItem('nama');
+            if (data) {
+                try {
+                    const obj = JSON.parse(data);
+                    return obj.nama || obj.user || data;
+                } catch(e) { return data; }
+            }
+            return null;
+        }
+
+        const namaSiswa = ambilNamaSiswa();
+
+        if (namaSiswa) {
+            document.getElementById("tampilNama").innerText = "Siswa: " + namaSiswa;
+            // Join room agar Bapak tetap bisa melihat siapa saja yang online di monitor guru
+            socket.emit('join_room', { nama: namaSiswa, roomCode: "62" });
+        } else {
+            // Jika belum login, arahkan ke login.html
+            window.location.href = "login.html";
+        }
+
+        function bukaForum() {
+            alert("Membuka Forum Diskusi SDN 62 Tajong...");
+            window.location.href = "forum.html"; 
+        }
+
+        function aksiLogout() {
+            if(confirm("Yakin ingin keluar?")) {
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = "login.html";
+            }
+        }
+    </script>
+</body>
+</html>
