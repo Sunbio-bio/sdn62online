@@ -73,7 +73,7 @@
     <nav class="sidebar" id="sidebar">
         <h3>MENU UTAMA</h3>
         <a href="kelas-digital.html?role=guru"><span>💻</span> Dashboard Guru</a>
-        <a href="https://bit.ly/riski62admin"><span>📊</span> Monitoring Guru</a>
+        <a href="https://bit.ly/riski62admin" target="_blank"><span>📊</span> Monitoring Guru</a>
         <a href="admin-piket.html"><span>🧹</span> Jadwal Kebersihan</a>
         <a href="#" onclick="alert('Fitur Bank Soal segera hadir!')"><span>📝</span> Bank Soal</a>
         <a onclick="bukaForum()"><span>💬</span> Forum Diskusi</a>
@@ -122,7 +122,7 @@
             <span class="icon green">💬</span>
             <div class="s-text">
                 <strong>Forum Diskusi</strong>
-                <p>Tanya Jawab Siswa</p>
+                <p>Chat Langsung dg Siswa</p>
             </div>
         </div>
     </section>
@@ -142,6 +142,7 @@
     <footer class="footer">Portal Digital Guru © 2026 | Developed by Riski OPS 62 Tajong</footer>
 
     <script>
+        // KONEKSI ABLY
         const ably = new Ably.Realtime('Lqd-SA.02uOJw:5Q9fS13uwWhBLZJsqF9XA4gjNMzowZHCq2jJ9kxDdx8');
         const channel = ably.channels.get('update-sekolah');
         let currentType = "";
@@ -151,9 +152,9 @@
             document.getElementById("overlay").classList.toggle("active");
         }
 
-        // FUNGSI UNTUK MEMBUKA FORUM
+        // FUNGSI AKTIF FORUM DISKUSI
         function bukaForum() {
-            // Kita bisa tambahkan parameter role agar di forum guru punya tanda khusus
+            // Mengarahkan ke forum.html dengan tanda bahwa ini adalah Guru
             window.location.href = "forum.html?user=GuruAdmin";
         }
 
