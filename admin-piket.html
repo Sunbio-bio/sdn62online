@@ -5,29 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Piket - SDN 62 TAJONG</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
-        body { font-family: 'Poppins', sans-serif; background: #f4f7fa; padding: 20px; }
-        .box { background: white; max-width: 650px; margin: auto; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        h2 { color: #1a5296; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; text-align: center; }
-        label { display: block; margin-top: 15px; font-weight: 600; color: #555; }
-        select, input, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: #f4f7fa; padding: 20px; color: #333; }
+        .box { background: white; max-width: 600px; margin: 30px auto; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h2 { color: #1a5296; text-align: center; margin-bottom: 10px; }
+        .sub-title { text-align: center; font-size: 12px; color: #888; margin-bottom: 25px; }
         
-        .btn-save { width: 100%; background: #27ae60; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 20px; }
-        .btn-copy { width: 100%; background: #1a5296; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        label { display: block; margin-top: 15px; font-weight: 600; color: #555; font-size: 14px; }
+        select, input { width: 100%; padding: 12px; margin-top: 8px; border: 2px solid #edf2f7; border-radius: 10px; font-size: 14px; outline: none; transition: 0.3s; }
+        select:focus, input:focus { border-color: #1a5296; }
         
-        .code-output { background: #2d3436; color: #fab1a0; padding: 15px; border-radius: 8px; margin-top: 20px; font-family: monospace; font-size: 12px; display: none; overflow-x: auto; }
-        .hari-item { background: #f9f9f9; padding: 10px; margin-bottom: 5px; border-radius: 8px; border-left: 5px solid #ff8c00; font-size: 14px; }
+        .btn-send { width: 100%; background: #27ae60; color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 25px; font-size: 16px; transition: 0.3s; }
+        .btn-send:hover { background: #219150; transform: translateY(-2px); }
+        
+        .btn-reset { width: 100%; background: transparent; color: #e74c3c; border: 2px solid #e74c3c; padding: 10px; border-radius: 12px; cursor: pointer; margin-top: 15px; font-weight: 600; font-size: 13px; }
+        .btn-reset:hover { background: #e74c3c; color: white; }
+        
+        .status-box { display: none; margin-top: 20px; padding: 15px; border-radius: 10px; text-align: center; font-weight: 600; font-size: 13px; }
+        .status-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        
+        .btn-back { text-decoration: none; color: #1a5296; font-size: 14px; font-weight: 600; display: inline-block; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
 <div class="box">
-    <a href="index.html" style="text-decoration:none; color:#1a5296; font-size:14px;">❮ Kembali</a>
-    <h2>🛠 Admin Jadwal Piket</h2>
-    
-    <p style="font-size: 12px; color: #666; background: #fff3cd; padding: 10px; border-radius: 5px;">
-        <b>Info:</b> Karena kita menggunakan GitHub Gratis, data tidak bisa otomatis terkirim. Bapak harus copy kode di bawah dan tempel di GitHub.
-    </p>
+    <a href="index.html" class="btn-back">❮ Kembali ke Dashboard</a>
+    <h2>🛠 Admin Piket</h2>
+    <p class="sub-title">Update jadwal secara real-time ke HP Siswa</p>
 
     <label>Pilih Hari:</label>
     <select id="pilihHari">
@@ -39,54 +46,60 @@
         <option value="Sabtu">Sabtu</option>
     </select>
 
-    <label>Nama Siswa (Pisahkan dengan koma):</label>
-    <input type="text" id="inputNama" placeholder="Contoh: Ahmad, Siti, Budi">
+    <label>Nama Siswa (Gunakan koma sebagai pemisah):</label>
+    <input type="text" id="inputNama" placeholder="Contoh: Budi, Ahmad, Siti, Laila">
 
-    <button onclick="tambahJadwal()" class="btn-save">➕ Tambah ke Daftar</button>
-
-    <div id="preview" style="margin-top:20px;"></div>
-
-    <button id="btnCopy" onclick="salinKode()" class="btn-copy" style="display:none;">📋 Salin Kode Jadwal Untuk GitHub</button>
+    <button onclick="kirimKeSiswa()" class="btn-send">💾 Simpan & Sinkronkan</button>
     
-    <textarea id="outputKode" class="code-output" readonly></textarea>
+    <div id="notif" class="status-box status-success">✅ Jadwal berhasil dikirim ke HP Siswa!</div>
+
+    <button onclick="resetSemua()" class="btn-reset">🗑 Reset Semua Jadwal Siswa</button>
 </div>
 
 <script>
-    let jadwalSekolah = {};
+    // Konfigurasi Ably Bapak
+    const ably = new Ably.Realtime('Lqd-SA.02uOJw:5Q9fS13uwWhBLZJsqF9XA4gjNMzowZHCq2jJ9kxDdx8');
+    const channel = ably.channels.get('piket-62-tajong');
 
-    function tambahJadwal() {
+    function kirimKeSiswa() {
         const hari = document.getElementById('pilihHari').value;
-        const nama = document.getElementById('inputNama').value;
-        
-        if(!nama) return alert("Isi nama dulu!");
+        const namaText = document.getElementById('inputNama').value;
 
-        jadwalSekolah[hari] = nama.split(',').map(n => n.trim());
-        renderPreview();
-        buatKode();
+        if(!namaText.trim()) {
+            alert("Harap masukkan nama siswa!");
+            return;
+        }
+
+        // Ubah teks jadi array (kumpulan nama)
+        const daftarSiswa = namaText.split(',').map(s => s.trim()).filter(s => s !== "");
+
+        // Publish ke Ably
+        channel.publish('updatePiket', {
+            hari: hari,
+            siswa: daftarSiswa
+        }, (err) => {
+            if(err) {
+                alert("Gagal mengirim: " + err.message);
+            } else {
+                tampilkanNotif();
+                document.getElementById('inputNama').value = ""; // Kosongkan input
+            }
+        });
     }
 
-    function renderPreview() {
-        const div = document.getElementById('preview');
-        div.innerHTML = "<strong>Preview:</strong><br>";
-        for (let hari in jadwalSekolah) {
-            div.innerHTML += `<div class="hari-item"><b>${hari}:</b> ${jadwalSekolah[hari].join(', ')}</div>`;
+    function resetSemua() {
+        if(confirm("Apakah Anda yakin ingin menghapus semua jadwal di semua perangkat siswa?")) {
+            channel.publish('updatePiket', { reset: true });
+            alert("Semua jadwal telah di-reset.");
         }
     }
 
-    function buatKode() {
-        const json = JSON.stringify(jadwalSekolah);
-        const code = `const DATA_JADWAL = ${json};`;
-        document.getElementById('outputKode').value = code;
-        document.getElementById('outputKode').style.display = "block";
-        document.getElementById('btnCopy').style.display = "block";
-    }
-
-    function salinKode() {
-        const copyText = document.getElementById("outputKode");
-        copyText.select();
-        document.execCommand("copy");
-        alert("Kode berhasil disalin! Sekarang tempelkan di file jadwal-kebersihan.html di GitHub Bapak.");
+    function tampilkanNotif() {
+        const n = document.getElementById('notif');
+        n.style.display = 'block';
+        setTimeout(() => { n.style.display = 'none'; }, 4000);
     }
 </script>
+
 </body>
 </html>
