@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Siswa - SD NEGERI 62 TAJONG</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         
@@ -18,7 +18,6 @@
             padding: 15px;
         }
 
-        /* Header yang lebih elegan */
         header {
             background: rgba(26, 82, 150, 0.95);
             backdrop-filter: blur(5px);
@@ -49,16 +48,36 @@
         }
         .btn-logout:hover { background: #ff4757; color: white; }
 
-        /* Container Grid yang lebih padat */
+        /* --- Papan Pengumuman Baru --- */
+        .announcement-container {
+            max-width: 900px;
+            margin: 0 auto 20px;
+        }
+        .announcement-card {
+            background: white;
+            padding: 15px;
+            border-radius: 20px;
+            border-left: 5px solid #ffbc00;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            display: none; /* Sembunyi jika tidak ada pengumuman */
+            animation: slideIn 0.5s ease;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .announcement-card h4 { color: #1a5296; font-size: 14px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+        .announcement-card p { font-size: 13px; color: #555; line-height: 1.4; }
+        .announcement-img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; margin-top: 10px; }
+        .announcement-time { font-size: 10px; color: #aaa; margin-top: 10px; display: block; }
+
+        /* Container Grid Menu */
         .container {
             max-width: 900px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 Kolom di HP agar ringkas */
+            grid-template-columns: repeat(2, 1fr);
             gap: 15px;
         }
 
-        /* Card Menu dikecilkan */
         .card {
             background: rgba(255, 255, 255, 0.9);
             padding: 15px;
@@ -73,35 +92,24 @@
             justify-content: center;
             cursor: pointer;
         }
-
         .card:hover { transform: translateY(-5px); border-color: #1a5296; background: white; }
         
-        /* Ikon & Teks yang lebih proporsional */
         .card-icon { 
-            font-size: 35px; 
+            font-size: 30px; 
             margin-bottom: 8px; 
             background: #f0f7ff;
-            width: 60px;
-            height: 60px;
-            line-height: 60px;
+            width: 55px;
+            height: 55px;
+            line-height: 55px;
             border-radius: 50%;
         }
         
-        .card h2 { color: #1a5296; font-size: 14px; font-weight: 700; margin-bottom: 2px; }
-        .card p { color: #888; font-size: 10px; margin-bottom: 12px; line-height: 1.2; }
+        .card h2 { color: #1a5296; font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+        .card p { color: #888; font-size: 9px; margin-bottom: 12px; }
 
-        /* Tombol Link yang disesuaikan */
         .btn-link {
-            text-decoration: none;
-            color: white;
-            padding: 8px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 11px;
-            border: none;
-            width: 100%;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-decoration: none; color: white; padding: 7px; border-radius: 10px;
+            font-weight: 700; font-size: 10px; border: none; width: 100%; cursor: pointer;
         }
 
         .blue { background: linear-gradient(135deg, #1e90ff, #1a5296); }
@@ -110,7 +118,6 @@
         .purple { background: linear-gradient(135deg, #a55eea, #8854d0); }
         .light-blue { background: linear-gradient(135deg, #70a1ff, #5352ed); }
 
-        /* Khusus Tablet/Laptop biar tetap bagus */
         @media (min-width: 600px) {
             .container { grid-template-columns: repeat(3, 1fr); }
         }
@@ -121,10 +128,20 @@
     <header>
         <div class="user-info">
             <h3>PORTAL SISWA 🎓</h3>
-            <p id="tampilNama">...</p>
+            <p id="tampilNama">Memuat...</p>
         </div>
         <button class="btn-logout" onclick="aksiLogout()">Keluar ✖</button>
     </header>
+
+    <div class="announcement-container">
+        <div id="papanInfo" class="announcement-card">
+            <h4 id="infoType">📢 Pengumuman</h4>
+            <strong id="infoTitle" style="font-size: 15px; color: #333;"></strong>
+            <p id="infoContent"></p>
+            <img id="infoImage" src="" class="announcement-img" style="display:none;">
+            <span id="infoTime" class="announcement-time"></span>
+        </div>
+    </div>
 
     <div class="container">
         <div class="card" onclick="location.href='kelas-digital.html'">
@@ -148,7 +165,7 @@
             <button class="btn-link purple">CEK</button>
         </div>
 
-        <div class="card" onclick="bukaForum()">
+        <div class="card" onclick="location.href='forum.html'">
             <div class="card-icon">💬</div>
             <h2>Forum</h2>
             <p>Tanya Jawab</p>
@@ -164,8 +181,40 @@
     </div>
 
     <script>
-        const socket = io();
+        // 1. KONEKSI ABLY (Sama dengan Guru)
+        const ably = new Ably.Realtime('Lqd-SA.02uOJw:5Q9fS13uwWhBLZJsqF9XA4gjNMzowZHCq2jJ9kxDdx8');
+        const channel = ably.channels.get('update-sekolah');
 
+        // 2. TAMPILKAN INFO SAAT ADA UPDATE DARI GURU
+        channel.subscribe('infoBaru', function(message) {
+            const data = message.data;
+            
+            // Simpan ke memori HP agar pengumuman tidak hilang saat di-refresh
+            localStorage.setItem('last_announcement', JSON.stringify(data));
+            
+            tampilkanInfo(data);
+        });
+
+        function tampilkanInfo(data) {
+            if(!data) return;
+
+            document.getElementById('papanInfo').style.display = 'block';
+            document.getElementById('infoType').innerText = data.tipe === 'PENGUMUMAN' ? '📢 Pengumuman Sekolah' : 
+                                                            data.tipe === 'KEGIATAN' ? 'ℹ️ Info Kegiatan' : '⭐ Prestasi Siswa';
+            document.getElementById('infoTitle').innerText = data.judul;
+            document.getElementById('infoContent').innerText = data.isi;
+            document.getElementById('infoTime').innerText = "Dikirim pada: " + data.tanggal;
+
+            const imgTag = document.getElementById('infoImage');
+            if(data.foto) {
+                imgTag.src = data.foto;
+                imgTag.style.display = 'block';
+            } else {
+                imgTag.style.display = 'none';
+            }
+        }
+
+        // 3. LOGIKA LOGIN & NAMA
         function ambilNamaSiswa() {
             const data = localStorage.getItem('siswa') || localStorage.getItem('user') || sessionStorage.getItem('nama');
             if (data) {
@@ -177,19 +226,18 @@
             return null;
         }
 
-        const namaSiswa = ambilNamaSiswa();
+        window.onload = function() {
+            const namaSiswa = ambilNamaSiswa();
+            if (namaSiswa) {
+                document.getElementById("tampilNama").innerText = namaSiswa;
+            } else {
+                window.location.href = "login.html";
+            }
 
-        if (namaSiswa) {
-            document.getElementById("tampilNama").innerText = namaSiswa;
-            // Emit join_room tetap dipertahankan untuk monitoring Bapak
-            socket.emit('join_room', { nama: namaSiswa, roomCode: "62" });
-        } else {
-            window.location.href = "login.html";
-        }
-
-        function bukaForum() {
-            window.location.href = "forum.html"; 
-        }
+            // Cek apakah ada pengumuman terakhir yang tersimpan di memori
+            const lastInfo = JSON.parse(localStorage.getItem('last_announcement'));
+            if(lastInfo) tampilkanInfo(lastInfo);
+        };
 
         function aksiLogout() {
             if(confirm("Yakin ingin keluar?")) {
