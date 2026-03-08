@@ -30,7 +30,6 @@
         .title { font-size: 28px; font-weight: 700; color: white; margin-bottom: 5px; }
         .subtitle { color: #e0e0e0; margin-bottom: 30px; font-size: 14px; letter-spacing: 1px; }
 
-        /* Menu Utama Pilihan */
         .menu-selection { display: flex; flex-direction: column; gap: 15px; }
         
         .choice-card {
@@ -44,7 +43,6 @@
         .choice-text strong { display: block; font-size: 18px; color: #333; }
         .choice-text p { font-size: 12px; color: #666; }
 
-        /* Form Container (Awalnya Sembunyi) */
         .login-box { 
             background: white; padding: 30px; border-radius: 20px; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.3); display: none; 
@@ -71,7 +69,6 @@
 
         .footer { margin-top: 30px; font-size: 11px; color: #cbd5e1; }
 
-        /* MODAL REGISTRASI */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 100; padding: 20px; }
         .modal-box { background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; }
     </style>
@@ -137,7 +134,6 @@
 </div>
 
 <script>
-    // Fungsi menampilkan form sesuai pilihan
     function showLogin(role) {
         document.getElementById("menuSelection").style.display = "none";
         if(role === 'siswa') {
@@ -147,56 +143,81 @@
         }
     }
 
-    // Fungsi kembali ke menu awal
     function backToMenu() {
         document.getElementById("formSiswa").style.display = "none";
         document.getElementById("formGuru").style.display = "none";
         document.getElementById("menuSelection").style.display = "flex";
     }
 
-    /* SISTEM LOGIN GURU */
     function loginGuru() {
         let user = document.getElementById("userGuru").value;
         let pass = document.getElementById("passGuru").value;
         if (user === "sd.negeri62tajong" && pass === "sekolahku62#") {
             alert("Selamat Datang Bapak/Ibu Guru!");
-            window.location.href = "index.html"; 
+            window.location.href = "admin.html"; 
         } else {
             alert("Username atau Password Guru Salah!");
         }
     }
 
-    /* SISTEM LOGIN SISWA */
+    // PERBAIKAN LOGIN SISWA (Mengecek di dalam list)
     function loginSiswa() {
-        let user = document.getElementById("userSiswa").value;
-        let pass = document.getElementById("passSiswa").value;
-        let data = JSON.parse(localStorage.getItem("siswa"));
+        let userInput = document.getElementById("userSiswa").value;
+        let passInput = document.getElementById("passSiswa").value;
+        
+        // Ambil daftar semua siswa, jika kosong buat array baru []
+        let daftarSiswa = JSON.parse(localStorage.getItem("data_siswa")) || [];
 
-        if (data && user === data.user && pass === data.pass) {
-            alert("Halo " + user + ", Selamat Belajar!");
-            window.location.href = "siswa.html"; 
+        // Cari apakah ada username dan password yang cocok di dalam daftar
+        let akunDitemukan = daftarSiswa.find(siswa => siswa.user === userInput && siswa.pass === passInput);
+
+        if (akunDitemukan) {
+            alert("Halo " + userInput + ", Selamat Belajar!");
+            // Simpan nama sementara untuk di halaman siswa
+            sessionStorage.setItem('nama', userInput);
+            window.location.href = "index.html"; 
         } else {
-            alert("Akun tidak ditemukan! Silakan daftar dulu.");
+            alert("Login Gagal! Periksa kembali Username & Password atau silakan Daftar Baru.");
         }
     }
 
-    /* MODAL REGISTRASI */
     function openRegister() { document.getElementById("modal").style.display = "flex"; }
     function closeRegister() { document.getElementById("modal").style.display = "none"; }
 
+    // PERBAIKAN REGISTRASI (Menambah ke daftar, bukan menimpa)
     function register() {
         let user = document.getElementById("regUser").value;
         let pass = document.getElementById("regPass").value;
+
         if (user === "" || pass === "") {
             alert("Isi data dengan lengkap!");
             return;
         }
-        localStorage.setItem("siswa", JSON.stringify({ user: user, pass: pass }));
-        alert("Registrasi Berhasil! Silakan Login.");
+
+        // Ambil daftar lama
+        let daftarSiswa = JSON.parse(localStorage.getItem("data_siswa")) || [];
+
+        // Cek apakah username sudah ada supaya tidak ganda
+        let cekUsername = daftarSiswa.find(siswa => siswa.user === user);
+        if(cekUsername) {
+            alert("Username sudah terpakai! Gunakan nama lain.");
+            return;
+        }
+
+        // Tambahkan siswa baru ke daftar
+        daftarSiswa.push({ user: user, pass: pass });
+
+        // Simpan kembali daftar yang baru ke memori browser
+        localStorage.setItem("data_siswa", JSON.stringify(daftarSiswa));
+
+        alert("Registrasi Berhasil! Sekarang silakan Login.");
         closeRegister();
+        
+        // Bersihkan input register
+        document.getElementById("regUser").value = "";
+        document.getElementById("regPass").value = "";
     }
 </script>
 
 </body>
-
 </html>
