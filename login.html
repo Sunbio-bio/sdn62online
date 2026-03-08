@@ -166,30 +166,24 @@
         }
     }
 
-    // --- PERBAIKAN LOGIN SISWA (Hanya ganti cara cek data) ---
+    /* SISTEM LOGIN SISWA */
     function loginSiswa() {
         let user = document.getElementById("userSiswa").value;
         let pass = document.getElementById("passSiswa").value;
-        
-        // Ambil daftar siswa, jika tidak ada buat array kosong
-        let semuaSiswa = JSON.parse(localStorage.getItem("dataSiswa")) || [];
+        let data = JSON.parse(localStorage.getItem("siswa"));
 
-        // Cek apakah ada user & pass yang cocok di daftar
-        let ketemu = semuaSiswa.find(s => s.user === user && s.pass === pass);
-
-        if (ketemu) {
+        if (data && user === data.user && pass === data.pass) {
             alert("Halo " + user + ", Selamat Belajar!");
-            sessionStorage.setItem('nama', user);
-            window.location.href = "index.html"; 
+            window.location.href = "siswa.html"; 
         } else {
             alert("Akun tidak ditemukan! Silakan daftar dulu.");
         }
     }
 
+    /* MODAL REGISTRASI */
     function openRegister() { document.getElementById("modal").style.display = "flex"; }
     function closeRegister() { document.getElementById("modal").style.display = "none"; }
 
-    // --- PERBAIKAN REGISTER (Hanya ganti cara simpan data) ---
     function register() {
         let user = document.getElementById("regUser").value;
         let pass = document.getElementById("regPass").value;
@@ -197,20 +191,12 @@
             alert("Isi data dengan lengkap!");
             return;
         }
-
-        // Ambil daftar lama
-        let semuaSiswa = JSON.parse(localStorage.getItem("dataSiswa")) || [];
-        
-        // Tambahkan siswa baru ke daftar
-        semuaSiswa.push({ user: user, pass: pass });
-
-        // Simpan kembali daftar yang sudah bertambah
-        localStorage.setItem("dataSiswa", JSON.stringify(semuaSiswa));
-
+        localStorage.setItem("siswa", JSON.stringify({ user: user, pass: pass }));
         alert("Registrasi Berhasil! Silakan Login.");
         closeRegister();
     }
 </script>
 
 </body>
+
 </html>
