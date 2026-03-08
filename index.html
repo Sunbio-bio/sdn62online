@@ -44,41 +44,47 @@
         }
         .menu-toggle { font-size: 24px; cursor: pointer; color: #1a5296; }
 
-        /* --- STATS BAR --- */
+        /* --- STATS BAR DENGAN WARNA WARNI ELEGAN --- */
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px 5% 5px; }
-        .stat-item { padding: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; font-size: 12px; }
+        .stat-item { padding: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; font-size: 13px; color: #fff; border: none; }
+        
+        /* Warna spesifik tiap kolom stats */
+        .stat-siswa { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); } /* Biru Muda */
+        .stat-guru { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }  /* Ungu Blue */
+        .stat-tendik { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); } /* Pink/Red */
+        .stat-kelas { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }  /* Hijau */
 
         /* --- HERO & DASHBOARD --- */
         .container { padding: 0 5% 20px; }
-        .hero-banner { display: flex; justify-content: space-between; align-items: center; padding: 25px 35px; margin-bottom: 15px; }
+        .hero-banner { display: flex; justify-content: space-between; align-items: center; padding: 25px 35px; margin-bottom: 15px; border-left: 5px solid #1a5296; }
         .hero-content h1 { font-size: 22px; font-weight: 700; color: #1a5296; margin-bottom: 5px; }
         .hero-content p { font-size: 12px; color: #5a7184; max-width: 380px; line-height: 1.5; }
         .logo-container { width: 110px; height: 110px; display: flex; align-items: center; justify-content: center; }
         .dashboard-logo { width: 100%; height: auto; object-fit: contain; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1)); }
 
-        /* --- WIDGETS (CLOCK & CALENDAR) --- */
+        /* --- WIDGETS (WARNA KHUSUS) --- */
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 15px; margin-bottom: 20px; }
-        .clock-box { padding: 20px; text-align: center; }
+        .clock-box { padding: 20px; text-align: center; border-bottom: 4px solid #4facfe; }
         .time-now { font-family: 'Digital-7 Mono', sans-serif; font-size: 60px; color: #1a5296; line-height: 1; }
         .date-now { font-size: 12px; font-weight: 600; color: #6e84a3; margin-top: 5px; }
 
-        .calendar-box { padding: 15px; }
-        .cal-head { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 700; font-size: 12px; opacity: 0.8; }
+        .calendar-box { padding: 15px; border-bottom: 4px solid #43e97b; }
+        .cal-head { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 700; font-size: 12px; color: #1a5296; }
         .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; text-align: center; font-size: 10px; }
         .date-num { padding: 5px; border-radius: 8px; }
-        .date-num.today { background: #1a5296; color: white; font-weight: 700; }
+        .date-num.today { background: #1a5296; color: white; font-weight: 700; box-shadow: 0 4px 10px rgba(26, 82, 150, 0.3); }
 
-        /* --- ACTION BUTTONS (COMPACT) --- */
+        /* --- ACTION BUTTONS (MODERN COLOR) --- */
         .action-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-        .action-card { padding: 15px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; transition: 0.3s ease; border: none; }
-        .action-card:hover { transform: translateY(-3px); background: #fff; }
+        .action-card { padding: 15px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; transition: 0.3s ease; border: 1px solid rgba(255,255,255,0.5); }
+        .action-card:hover { transform: translateY(-3px); background: #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
         .action-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 8px; }
 
-        .bg-red { background: #fff5f5; color: #e53e3e; }
-        .bg-blue { background: #ebf8ff; color: #3182ce; }
-        .bg-green { background: #f0fff4; color: #38a169; }
+        .bg-red { background: #fee2e2; color: #ef4444; }
+        .bg-blue { background: #dbeafe; color: #3b82f6; }
+        .bg-green { background: #dcfce7; color: #22c55e; }
 
-        /* --- MODAL FORM (AESTETIC & ELEGAN) --- */
+        /* --- MODAL FORM --- */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 4000; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 20px; }
         .modal-content { 
             background: #fff; padding: 25px; border-radius: 24px; width: 100%; max-width: 400px; 
@@ -86,45 +92,32 @@
             animation: slideUp 0.3s ease-out;
         }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 22px; cursor: pointer; color: #ccc; transition: 0.2s; }
-        .close-btn:hover { color: #ff7675; }
-        
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 22px; cursor: pointer; color: #ccc; }
         .modal-content h2 { font-size: 18px; margin-bottom: 15px; font-weight: 700; color: #1a5296; text-align: center; }
-        
         .input-group { margin-bottom: 12px; }
         .input-label { font-size: 11px; font-weight: 600; color: #a0aec0; margin-left: 5px; margin-bottom: 5px; display: block; }
-        
         input[type="text"], textarea { 
             width: 100%; padding: 12px 15px; border: 1.5px solid #edf2f7; border-radius: 12px; 
             font-size: 13px; background: #f8fafc; transition: 0.3s; color: #4a5568;
         }
-        input:focus, textarea:focus { border-color: #1a5296; background: #fff; outline: none; box-shadow: 0 0 0 3px rgba(26, 82, 150, 0.1); }
-        
-        input[type="file"] { font-size: 11px; color: #718096; margin-top: 5px; }
-        
+        input:focus, textarea:focus { border-color: #1a5296; background: #fff; outline: none; }
         .btn-post { 
             width: 100%; background: #1a5296; color: white; padding: 14px; border: none; 
             border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer; 
-            margin-top: 10px; transition: 0.3s; box-shadow: 0 4px 12px rgba(26, 82, 150, 0.2);
+            margin-top: 10px; transition: 0.3s;
         }
-        .btn-post:hover { background: #003d82; transform: translateY(-1px); }
-        .btn-post:disabled { background: #cbd5e0; cursor: not-allowed; transform: none; box-shadow: none; }
 
         /* --- FOOTER --- */
         .footer { text-align: center; padding: 15px; font-size: 10px; opacity: 0.6; font-weight: 600; }
 
-        /* --- MOBILE RESPONSIVE FIX --- */
+        /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); padding: 10px 5%; }
             .dashboard-grid { grid-template-columns: 1fr; }
             .action-row { grid-template-columns: 1fr; gap: 10px; }
             .action-card { flex-direction: row; gap: 15px; padding: 12px 20px; justify-content: flex-start; }
-            .action-icon { margin-bottom: 0; width: 38px; height: 38px; font-size: 18px; }
             .hero-banner { flex-direction: column-reverse; text-align: center; padding: 20px; }
             .logo-container { margin-bottom: 15px; width: 90px; height: 90px; }
-            .hero-content h1 { font-size: 18px; }
-            .time-now { font-size: 55px; }
         }
     </style>
 </head>
@@ -151,10 +144,10 @@
     </header>
 
     <div class="stats-grid">
-        <div class="stat-item glass-panel">👤 70 Siswa</div>
-        <div class="stat-item glass-panel">👨‍🏫 6 Guru</div>
-        <div class="stat-item glass-panel">👔 2 Tendik</div>
-        <div class="stat-item glass-panel">🏫 6 Kelas</div>
+        <div class="stat-item glass-panel stat-siswa">👤 70 Siswa</div>
+        <div class="stat-item glass-panel stat-guru">👨‍🏫 6 Guru</div>
+        <div class="stat-item glass-panel stat-tendik">👔 2 Tendik</div>
+        <div class="stat-item glass-panel stat-kelas">🏫 6 Kelas</div>
     </div>
 
     <div class="container">
@@ -177,7 +170,7 @@
             <div class="calendar-box glass-panel">
                 <div class="cal-head">
                     <span id="calMonth">Maret 2026</span>
-                    <span style="color: #cbd5e0;">INFO AKADEMIK</span>
+                    <span style="color: #667eea; font-weight: 700;">KALENDER</span>
                 </div>
                 <div class="cal-days" id="calendarDates"></div>
             </div>
@@ -203,22 +196,18 @@
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
             <h2 id="modalTitle">Buat Postingan</h2>
-            
             <div class="input-group">
                 <label class="input-label">JUDUL POSTINGAN</label>
                 <input type="text" id="postTitle" placeholder="Contoh: Jadwal Ujian Semester">
             </div>
-            
             <div class="input-group">
                 <label class="input-label">ISI INFORMASI</label>
                 <textarea id="postContent" rows="4" placeholder="Tuliskan detail informasi di sini..."></textarea>
             </div>
-            
             <div class="input-group">
                 <label class="input-label">LAMPIRAN FOTO (OPSIONAL)</label>
                 <input type="file" id="postFile" accept="image/*">
             </div>
-            
             <button class="btn-post" id="btnPublish" onclick="kirimUpdate()">PUBLIKASIKAN SEKARANG</button>
         </div>
     </div>
@@ -228,7 +217,7 @@
     </footer>
 
     <script>
-        /* --- SKRIP ASLI (JANGAN DIEDIT) --- */
+        /* --- SKRIP ASLI 100% TETAP DI PERTAHANKAN (TANPA EDIT) --- */
         const ably = new Ably.Realtime('Lqd-SA.02uOJw:5Q9fS13uwWhBLZJsqF9XA4gjNMzowZHCq2jJ9kxDdx8');
         const channel = ably.channels.get('update-sekolah');
         let currentType = "";
@@ -302,28 +291,20 @@
 
         function aksiLogout() { if(confirm("Keluar dari panel?")) { sessionStorage.clear(); window.location.href = "login.html"; } }
 
-        /* --- DASHBOARD LOGIC --- */
         window.onload = function() {
             const now = new Date();
-            // Jam Digital
             setInterval(() => {
                 const t = new Date();
                 document.getElementById('digitalClock').innerText = t.toLocaleTimeString('id-ID', { hour12: false });
             }, 1000);
-            
-            // Tanggalan
             document.getElementById('fullDateText').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
             document.getElementById('monthLabel').innerText = now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
             document.getElementById('calMonth').innerText = now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-
-            // Kalender Grid
             const grid = document.getElementById('calendarDates');
             const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
             grid.innerHTML = days.map(d => `<div style="font-weight:700; opacity:0.4;">${d}</div>`).join('');
-            
             const first = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
             const total = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-            
             for(let i=0; i<first; i++) grid.innerHTML += '<div></div>';
             for(let d=1; d<=total; d++) {
                 const active = d === now.getDate() ? 'today' : '';
