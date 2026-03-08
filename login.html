@@ -149,73 +149,72 @@
         document.getElementById("menuSelection").style.display = "flex";
     }
 
+    /* SISTEM LOGIN GURU */
     function loginGuru() {
         let user = document.getElementById("userGuru").value;
         let pass = document.getElementById("passGuru").value;
         if (user === "sd.negeri62tajong" && pass === "sekolahku62#") {
             alert("Selamat Datang Bapak/Ibu Guru!");
-            window.location.href = "admin.html"; 
+            window.location.href = "admin.html"; // Diarahkan ke admin.html sesuai standar monitoring
         } else {
             alert("Username atau Password Guru Salah!");
         }
     }
 
-    // PERBAIKAN LOGIN SISWA (Mengecek di dalam list)
+    /* SISTEM LOGIN SISWA - PERBAIKAN DATABASE ARRAY */
     function loginSiswa() {
-        let userInput = document.getElementById("userSiswa").value;
-        let passInput = document.getElementById("passSiswa").value;
+        let user = document.getElementById("userSiswa").value;
+        let pass = document.getElementById("passSiswa").value;
         
-        // Ambil daftar semua siswa, jika kosong buat array baru []
-        let daftarSiswa = JSON.parse(localStorage.getItem("data_siswa")) || [];
+        // Mengambil daftar siswa (Array), jika kosong buat array baru []
+        let daftarSiswa = JSON.parse(localStorage.getItem("daftarSiswa")) || [];
 
-        // Cari apakah ada username dan password yang cocok di dalam daftar
-        let akunDitemukan = daftarSiswa.find(siswa => siswa.user === userInput && siswa.pass === passInput);
+        // Mencari apakah ada user dan pass yang cocok di dalam daftar
+        let akunDitemukan = daftarSiswa.find(akun => akun.user === user && akun.pass === pass);
 
         if (akunDitemukan) {
-            alert("Halo " + userInput + ", Selamat Belajar!");
-            // Simpan nama sementara untuk di halaman siswa
-            sessionStorage.setItem('nama', userInput);
+            alert("Halo " + user + ", Selamat Belajar!");
+            // Simpan nama untuk sesi aktif di halaman index/siswa
+            sessionStorage.setItem('nama', user);
             window.location.href = "index.html"; 
         } else {
-            alert("Login Gagal! Periksa kembali Username & Password atau silakan Daftar Baru.");
+            alert("Akun tidak ditemukan atau Password salah! Silakan periksa kembali atau daftar baru.");
         }
     }
 
     function openRegister() { document.getElementById("modal").style.display = "flex"; }
     function closeRegister() { document.getElementById("modal").style.display = "none"; }
 
-    // PERBAIKAN REGISTRASI (Menambah ke daftar, bukan menimpa)
+    /* SISTEM REGISTER - PERBAIKAN AGAR TIDAK MENIMPA DATA LAMA */
     function register() {
-        let user = document.getElementById("regUser").value;
-        let pass = document.getElementById("regPass").value;
-
+        let user = document.getElementById("regUser").value.trim();
+        let pass = document.getElementById("regPass").value.trim();
+        
         if (user === "" || pass === "") {
             alert("Isi data dengan lengkap!");
             return;
         }
 
         // Ambil daftar lama
-        let daftarSiswa = JSON.parse(localStorage.getItem("data_siswa")) || [];
+        let daftarSiswa = JSON.parse(localStorage.getItem("daftarSiswa")) || [];
 
-        // Cek apakah username sudah ada supaya tidak ganda
-        let cekUsername = daftarSiswa.find(siswa => siswa.user === user);
-        if(cekUsername) {
-            alert("Username sudah terpakai! Gunakan nama lain.");
+        // Cek apakah username sudah dipakai orang lain
+        let cekUser = daftarSiswa.find(akun => akun.user === user);
+        if(cekUser) {
+            alert("Username sudah ada! Gunakan nama lain.");
             return;
         }
 
-        // Tambahkan siswa baru ke daftar
+        // Tambahkan user baru ke dalam daftar (Array)
         daftarSiswa.push({ user: user, pass: pass });
 
-        // Simpan kembali daftar yang baru ke memori browser
-        localStorage.setItem("data_siswa", JSON.stringify(daftarSiswa));
+        // Simpan kembali daftar yang sudah diperbarui ke LocalStorage
+        localStorage.setItem("daftarSiswa", JSON.stringify(daftarSiswa));
 
-        alert("Registrasi Berhasil! Sekarang silakan Login.");
-        closeRegister();
-        
-        // Bersihkan input register
+        alert("Registrasi Berhasil! Sekarang silakan login dengan akun Anda.");
         document.getElementById("regUser").value = "";
         document.getElementById("regPass").value = "";
+        closeRegister();
     }
 </script>
 
