@@ -6,8 +6,8 @@
     <title>Portal Sekolah Digital - SD NEGERI 62 TAJONG</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* CSS ASLI BAPAK - TIDAK DIUBAH */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-
         body {
             background: linear-gradient(rgba(26, 82, 150, 0.8), rgba(26, 82, 150, 0.9)), 
                         url('sekolahku.jpg.jpeg') no-repeat center center fixed;
@@ -18,20 +18,15 @@
             justify-content: center;
             padding: 20px;
         }
-
         .wrapper { width: 100%; max-width: 500px; text-align: center; }
-        
         .logo-circle {
             width: 80px; height: 80px; background: white; border-radius: 50%;
             margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
             font-size: 40px; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
-
         .title { font-size: 28px; font-weight: 700; color: white; margin-bottom: 5px; }
         .subtitle { color: #e0e0e0; margin-bottom: 30px; font-size: 14px; letter-spacing: 1px; }
-
         .menu-selection { display: flex; flex-direction: column; gap: 15px; }
-        
         .choice-card {
             background: white; padding: 20px; border-radius: 15px; cursor: pointer;
             transition: 0.3s; display: flex; align-items: center; gap: 20px;
@@ -42,33 +37,25 @@
         .choice-text { text-align: left; }
         .choice-text strong { display: block; font-size: 18px; color: #333; }
         .choice-text p { font-size: 12px; color: #666; }
-
         .login-box { 
             background: white; padding: 30px; border-radius: 20px; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.3); display: none; 
             animation: slideIn 0.4s ease-out;
         }
-
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         .input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #ddd; outline: none; font-size: 14px; }
         .input:focus { border-color: #1a5296; box-shadow: 0 0 5px rgba(26,82,150,0.2); }
-
         .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; color: white; cursor: pointer; transition: 0.3s; font-size: 16px; }
         .blue { background: #1a5296; }
         .orange { background: #ff8c00; }
         .btn:hover { opacity: 0.9; transform: translateY(-2px); }
-
         .btn-back { background: none; border: none; color: #666; margin-top: 15px; cursor: pointer; font-size: 13px; text-decoration: underline; }
-
         .register { margin-top: 20px; font-size: 13px; color: #666; }
         .register a { color: #1a5296; font-weight: bold; cursor: pointer; }
-
         .footer { margin-top: 30px; font-size: 11px; color: #cbd5e1; }
-
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 100; padding: 20px; }
         .modal-box { background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; }
     </style>
@@ -88,7 +75,6 @@
                 <p>Masuk ke ruang belajar digital</p>
             </div>
         </div>
-
         <div class="choice-card" onclick="showLogin('guru')">
             <div class="choice-icon">👨‍🏫</div>
             <div class="choice-text">
@@ -134,6 +120,7 @@
 </div>
 
 <script>
+    // FUNGSI TAMPILAN ASLI BAPAK
     function showLogin(role) {
         document.getElementById("menuSelection").style.display = "none";
         if(role === 'siswa') {
@@ -149,71 +136,59 @@
         document.getElementById("menuSelection").style.display = "flex";
     }
 
-    /* SISTEM LOGIN GURU */
     function loginGuru() {
         let user = document.getElementById("userGuru").value;
         let pass = document.getElementById("passGuru").value;
         if (user === "sd.negeri62tajong" && pass === "sekolahku62#") {
             alert("Selamat Datang Bapak/Ibu Guru!");
-            window.location.href = "admin.html"; // Diarahkan ke admin.html sesuai standar monitoring
+            window.location.href = "admin.html"; 
         } else {
             alert("Username atau Password Guru Salah!");
         }
     }
 
-    /* SISTEM LOGIN SISWA - PERBAIKAN DATABASE ARRAY */
+    // --- PERBAIKAN LOGIN SISWA (Hanya ganti cara cek data) ---
     function loginSiswa() {
         let user = document.getElementById("userSiswa").value;
         let pass = document.getElementById("passSiswa").value;
         
-        // Mengambil daftar siswa (Array), jika kosong buat array baru []
-        let daftarSiswa = JSON.parse(localStorage.getItem("daftarSiswa")) || [];
+        // Ambil daftar siswa, jika tidak ada buat array kosong
+        let semuaSiswa = JSON.parse(localStorage.getItem("dataSiswa")) || [];
 
-        // Mencari apakah ada user dan pass yang cocok di dalam daftar
-        let akunDitemukan = daftarSiswa.find(akun => akun.user === user && akun.pass === pass);
+        // Cek apakah ada user & pass yang cocok di daftar
+        let ketemu = semuaSiswa.find(s => s.user === user && s.pass === pass);
 
-        if (akunDitemukan) {
+        if (ketemu) {
             alert("Halo " + user + ", Selamat Belajar!");
-            // Simpan nama untuk sesi aktif di halaman index/siswa
             sessionStorage.setItem('nama', user);
             window.location.href = "index.html"; 
         } else {
-            alert("Akun tidak ditemukan atau Password salah! Silakan periksa kembali atau daftar baru.");
+            alert("Akun tidak ditemukan! Silakan daftar dulu.");
         }
     }
 
     function openRegister() { document.getElementById("modal").style.display = "flex"; }
     function closeRegister() { document.getElementById("modal").style.display = "none"; }
 
-    /* SISTEM REGISTER - PERBAIKAN AGAR TIDAK MENIMPA DATA LAMA */
+    // --- PERBAIKAN REGISTER (Hanya ganti cara simpan data) ---
     function register() {
-        let user = document.getElementById("regUser").value.trim();
-        let pass = document.getElementById("regPass").value.trim();
-        
+        let user = document.getElementById("regUser").value;
+        let pass = document.getElementById("regPass").value;
         if (user === "" || pass === "") {
             alert("Isi data dengan lengkap!");
             return;
         }
 
         // Ambil daftar lama
-        let daftarSiswa = JSON.parse(localStorage.getItem("daftarSiswa")) || [];
+        let semuaSiswa = JSON.parse(localStorage.getItem("dataSiswa")) || [];
+        
+        // Tambahkan siswa baru ke daftar
+        semuaSiswa.push({ user: user, pass: pass });
 
-        // Cek apakah username sudah dipakai orang lain
-        let cekUser = daftarSiswa.find(akun => akun.user === user);
-        if(cekUser) {
-            alert("Username sudah ada! Gunakan nama lain.");
-            return;
-        }
+        // Simpan kembali daftar yang sudah bertambah
+        localStorage.setItem("dataSiswa", JSON.stringify(semuaSiswa));
 
-        // Tambahkan user baru ke dalam daftar (Array)
-        daftarSiswa.push({ user: user, pass: pass });
-
-        // Simpan kembali daftar yang sudah diperbarui ke LocalStorage
-        localStorage.setItem("daftarSiswa", JSON.stringify(daftarSiswa));
-
-        alert("Registrasi Berhasil! Sekarang silakan login dengan akun Anda.");
-        document.getElementById("regUser").value = "";
-        document.getElementById("regPass").value = "";
+        alert("Registrasi Berhasil! Silakan Login.");
         closeRegister();
     }
 </script>
