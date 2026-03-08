@@ -1,369 +1,335 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portal Guru - SDN 62 TAJONG</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Guru - SDN 62 TAJONG</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/digital-7-mono" rel="stylesheet">
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+    <style>
+        /* --- CORE DESIGN & RESET --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(rgba(240, 244, 248, 0.9), rgba(240, 244, 248, 0.9)), url('sekolahku.jpg.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh; color: #1a5296; display: flex; flex-direction: column; overflow-x: hidden;
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-<link href="https://fonts.cdnfonts.com/css/digital-7-mono" rel="stylesheet">
-<script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(31, 38, 135, 0.06);
+        }
 
-<style>
+        /* --- NAVIGATION --- */
+        .sidebar { 
+            position: fixed; top: 0; left: -260px; width: 260px; height: 100%; 
+            background: rgba(26, 82, 150, 0.98); backdrop-filter: blur(15px); 
+            color: white; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 3000; padding-top: 50px; 
+        }
+        .sidebar.active { left: 0; }
+        .sidebar a { padding: 12px 25px; text-decoration: none; color: #cbdcf0; display: flex; align-items: center; gap: 12px; transition: 0.3s; font-size: 13px; cursor: pointer; }
+        .sidebar a:hover { background: rgba(255,255,255,0.1); color: white; padding-left: 30px; }
+        
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 2500; cursor: pointer; }
+        .overlay.active { display: block; }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
-}
+        .top-bar { 
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); 
+            padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
+        }
+        .menu-toggle { font-size: 24px; cursor: pointer; color: #1a5296; }
 
-body{
-background:linear-gradient(rgba(240,244,248,0.9),rgba(240,244,248,0.9)),url('sekolahku.jpg.jpeg') center/cover fixed;
-min-height:100vh;
-color:#1a5296;
-}
+        /* --- STATS BAR --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px 5% 5px; }
+        .stat-item { padding: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; font-size: 12px; }
 
-/* GLASS STYLE */
+        /* --- HERO & DASHBOARD --- */
+        .container { padding: 0 5% 20px; }
+        .hero-banner { display: flex; justify-content: space-between; align-items: center; padding: 25px 35px; margin-bottom: 15px; }
+        .hero-content h1 { font-size: 22px; font-weight: 700; color: #1a5296; margin-bottom: 5px; }
+        .hero-content p { font-size: 12px; color: #5a7184; max-width: 380px; line-height: 1.5; }
+        .logo-container { width: 110px; height: 110px; display: flex; align-items: center; justify-content: center; }
+        .dashboard-logo { width: 100%; height: auto; object-fit: contain; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1)); }
 
-.glass-panel{
-background:rgba(255,255,255,0.8);
-backdrop-filter:blur(12px);
-border-radius:18px;
-box-shadow:0 8px 25px rgba(0,0,0,0.06);
-}
+        /* --- WIDGETS (CLOCK & CALENDAR) --- */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 15px; margin-bottom: 20px; }
+        .clock-box { padding: 20px; text-align: center; }
+        .time-now { font-family: 'Digital-7 Mono', sans-serif; font-size: 60px; color: #1a5296; line-height: 1; }
+        .date-now { font-size: 12px; font-weight: 600; color: #6e84a3; margin-top: 5px; }
 
-/* TOP BAR */
+        .calendar-box { padding: 15px; }
+        .cal-head { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 700; font-size: 12px; opacity: 0.8; }
+        .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; text-align: center; font-size: 10px; }
+        .date-num { padding: 5px; border-radius: 8px; }
+        .date-num.today { background: #1a5296; color: white; font-weight: 700; }
 
-.top-bar{
-background:rgba(255,255,255,0.9);
-padding:10px 5%;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
+        /* --- ACTION BUTTONS (COMPACT) --- */
+        .action-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .action-card { padding: 15px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; transition: 0.3s ease; border: none; }
+        .action-card:hover { transform: translateY(-3px); background: #fff; }
+        .action-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 8px; }
 
-/* STATISTIK */
+        .bg-red { background: #fff5f5; color: #e53e3e; }
+        .bg-blue { background: #ebf8ff; color: #3182ce; }
+        .bg-green { background: #f0fff4; color: #38a169; }
 
-.stats-grid{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:12px;
-padding:20px 5%;
-}
+        /* --- MODAL FORM (AESTETIC & ELEGAN) --- */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 4000; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 20px; }
+        .modal-content { 
+            background: #fff; padding: 25px; border-radius: 24px; width: 100%; max-width: 400px; 
+            position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 22px; cursor: pointer; color: #ccc; transition: 0.2s; }
+        .close-btn:hover { color: #ff7675; }
+        
+        .modal-content h2 { font-size: 18px; margin-bottom: 15px; font-weight: 700; color: #1a5296; text-align: center; }
+        
+        .input-group { margin-bottom: 12px; }
+        .input-label { font-size: 11px; font-weight: 600; color: #a0aec0; margin-left: 5px; margin-bottom: 5px; display: block; }
+        
+        input[type="text"], textarea { 
+            width: 100%; padding: 12px 15px; border: 1.5px solid #edf2f7; border-radius: 12px; 
+            font-size: 13px; background: #f8fafc; transition: 0.3s; color: #4a5568;
+        }
+        input:focus, textarea:focus { border-color: #1a5296; background: #fff; outline: none; box-shadow: 0 0 0 3px rgba(26, 82, 150, 0.1); }
+        
+        input[type="file"] { font-size: 11px; color: #718096; margin-top: 5px; }
+        
+        .btn-post { 
+            width: 100%; background: #1a5296; color: white; padding: 14px; border: none; 
+            border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer; 
+            margin-top: 10px; transition: 0.3s; box-shadow: 0 4px 12px rgba(26, 82, 150, 0.2);
+        }
+        .btn-post:hover { background: #003d82; transform: translateY(-1px); }
+        .btn-post:disabled { background: #cbd5e0; cursor: not-allowed; transform: none; box-shadow: none; }
 
-.stat-item{
-padding:12px;
-text-align:center;
-font-weight:600;
-font-size:14px;
-}
+        /* --- FOOTER --- */
+        .footer { text-align: center; padding: 15px; font-size: 10px; opacity: 0.6; font-weight: 600; }
 
-/* DASHBOARD */
-
-.container{
-padding:0 5% 30px;
-}
-
-.dashboard-main{
-padding:25px;
-}
-
-.dashboard-top{
-font-size:22px;
-font-weight:700;
-margin-bottom:10px;
-}
-
-.dashboard-grid{
-display:grid;
-grid-template-columns:1fr 1fr 1fr;
-gap:20px;
-align-items:center;
-}
-
-/* KALENDER */
-
-.calendar-box{
-padding:15px;
-}
-
-.cal-head{
-display:flex;
-justify-content:space-between;
-font-weight:700;
-margin-bottom:10px;
-}
-
-.cal-days{
-display:grid;
-grid-template-columns:repeat(7,1fr);
-gap:4px;
-font-size:11px;
-text-align:center;
-}
-
-.date-num{
-padding:6px;
-border-radius:6px;
-}
-
-.today{
-background:#1a5296;
-color:white;
-}
-
-/* CLOCK */
-
-.clock-box{
-text-align:center;
-}
-
-.time-now{
-font-family:'Digital-7 Mono';
-font-size:55px;
-letter-spacing:2px;
-}
-
-.date-now{
-font-size:13px;
-margin-top:6px;
-color:#6e84a3;
-}
-
-/* LOGO */
-
-.logo-area{
-text-align:center;
-}
-
-.logo-area img{
-width:180px;
-}
-
-/* BUTTON */
-
-.action-row{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:15px;
-margin-top:20px;
-}
-
-.action-card{
-padding:15px;
-text-align:center;
-cursor:pointer;
-transition:0.2s;
-}
-
-.action-card:hover{
-transform:translateY(-4px);
-}
-
-.action-icon{
-font-size:22px;
-margin-bottom:5px;
-}
-
-/* FOOTER */
-
-.footer{
-text-align:center;
-font-size:11px;
-padding:15px;
-opacity:0.7;
-}
-
-/* MOBILE */
-
-@media(max-width:768px){
-
-.stats-grid{
-grid-template-columns:repeat(2,1fr);
-}
-
-.dashboard-grid{
-grid-template-columns:1fr;
-}
-
-.action-row{
-grid-template-columns:1fr;
-}
-
-.logo-area img{
-width:120px;
-}
-
-}
-
-</style>
+        /* --- MOBILE RESPONSIVE FIX --- */
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); padding: 10px 5%; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .action-row { grid-template-columns: 1fr; gap: 10px; }
+            .action-card { flex-direction: row; gap: 15px; padding: 12px 20px; justify-content: flex-start; }
+            .action-icon { margin-bottom: 0; width: 38px; height: 38px; font-size: 18px; }
+            .hero-banner { flex-direction: column-reverse; text-align: center; padding: 20px; }
+            .logo-container { margin-bottom: 15px; width: 90px; height: 90px; }
+            .hero-content h1 { font-size: 18px; }
+            .time-now { font-size: 55px; }
+        }
+    </style>
 </head>
-
 <body>
 
-<header class="top-bar">
-
-<div style="font-weight:700">SDN 62 TAJONG</div>
-
-<div id="status" style="font-size:11px">Offline</div>
-
-</header>
-
-<!-- STATISTIK -->
-
-<div class="stats-grid">
-
-<div class="stat-item glass-panel">👨‍🎓 210 Siswa</div>
-<div class="stat-item glass-panel">👨‍🏫 18 Guru</div>
-<div class="stat-item glass-panel">🏫 9 Kelas</div>
-<div class="stat-item glass-panel">🟢 35 Online</div>
-
-</div>
-
-<div class="container">
-
-<div class="dashboard-main glass-panel">
-
-<div class="dashboard-top" id="monthLabel">OKTOBER 2024</div>
-
-<h2>Halo, Bapak/Ibu Guru!</h2>
-<p style="font-size:13px;margin-bottom:20px;color:#5a7184">
-Selamat datang di panel kendali pusat SD Negeri 62 Tajong.
-</p>
-
-<div class="dashboard-grid">
-
-<!-- KALENDER -->
-
-<div class="calendar-box glass-panel">
-
-<div class="cal-head">
-
-<span id="calMonth">Oktober 2024</span>
-
-</div>
-
-<div class="cal-days" id="calendarDates"></div>
-
-</div>
-
-<!-- JAM -->
-
-<div class="clock-box glass-panel">
-
-<div class="time-now" id="digitalClock">00:00:00</div>
-<div class="date-now" id="fullDateText">MEMUAT...</div>
-
-</div>
-
-<!-- LOGO -->
-
-<div class="logo-area">
-
-<img src="sekolahku.jpg.jpeg">
-
-</div>
-
-</div>
-
-<!-- BUTTON -->
-
-<div class="action-row">
-
-<div class="action-card glass-panel" onclick="openModal('PENGUMUMAN')">
-
-<div class="action-icon">📢</div>
-
-Kirim Pengumuman
-
-</div>
-
-<div class="action-card glass-panel" onclick="openModal('KEGIATAN')">
-
-<div class="action-icon">📅</div>
-
-Update Kegiatan
-
-</div>
-
-<div class="action-card glass-panel" onclick="bukaForum()">
-
-<div class="action-icon">💬</div>
-
-Forum Diskusi
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<footer class="footer">
-
-Portal Digital Guru © 2026 | Developed by Riski OPS
-
-</footer>
-
-<script>
-
-/* --- SKRIP ASLI (TIDAK DIUBAH) --- */
-
-const ably = new Ably.Realtime('Lqd-SA.02uOJw:5Q9fS13uwWhBLZJsqF9XA4gjNMzowZHCq2jJ9kxDdx8');
-const channel = ably.channels.get('update-sekolah');
-let currentType = "";
-
-ably.connection.on('connected', () => { 
-const s = document.getElementById('status');
-s.innerText = "● Online"; 
-s.style.color="#2ecc71"; 
-});
-
-function bukaForum() { window.location.href = "forum.html?user=GuruAdmin"; }
-
-window.onload = function() {
-
-const now = new Date();
-
-setInterval(() => {
-const t = new Date();
-document.getElementById('digitalClock').innerText =
-t.toLocaleTimeString('id-ID',{hour12:false});
-},1000);
-
-document.getElementById('fullDateText').innerText =
-now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
-
-document.getElementById('monthLabel').innerText =
-now.toLocaleDateString('id-ID',{month:'long',year:'numeric'});
-
-document.getElementById('calMonth').innerText =
-now.toLocaleDateString('id-ID',{month:'long',year:'numeric'});
-
-const grid = document.getElementById('calendarDates');
-
-const days=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
-
-grid.innerHTML = days.map(d=>`<div style="font-weight:700;opacity:0.4">${d}</div>`).join('');
-
-const first = new Date(now.getFullYear(),now.getMonth(),1).getDay();
-const total = new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
-
-for(let i=0;i<first;i++)grid.innerHTML+='<div></div>';
-
-for(let d=1;d<=total;d++){
-
-const active = d===now.getDate()?'today':'';
-
-grid.innerHTML += `<div class="date-num ${active}">${d}</div>`;
-
-}
-
-};
-
-</script>
-
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div style="padding: 20px; font-weight: 700; font-size: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;">PANEL GURU</div>
+        <a href="kelas-digital.html?role=guru"><span>💻</span> Dashboard Guru</a>
+        <a href="https://sunbio-bio.github.io/monitoring-siswa/admin.html" target="_blank"><span>📊</span> Monitoring Guru</a>
+        <a href="admin-piket.html"><span>🧹</span> Jadwal Kebersihan</a>
+        <a href="#" onclick="alert('Fitur Bank Soal segera hadir!')"><span>📝</span> Bank Soal</a>
+        <a onclick="bukaForum()"><span>💬</span> Forum Diskusi</a>
+        <a href="#" onclick="aksiLogout()" style="color: #ffb8b8; margin-top: 20px;"><span>🚪</span> Logout</a>
+    </nav>
+
+    <header class="top-bar">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+            <div style="font-weight: 700; font-size: 13px; letter-spacing: 0.5px;">SDN 62 TAJONG</div>
+        </div>
+        <div id="status" style="font-size: 10px; font-weight: 700; color: #999;">Offline</div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-item glass-panel">👤 70 Siswa</div>
+        <div class="stat-item glass-panel">👨‍🏫 6 Guru</div>
+        <div class="stat-item glass-panel">👔 2 Tendik</div>
+        <div class="stat-item glass-panel">🏫 6 Kelas</div>
+    </div>
+
+    <div class="container">
+        <div class="hero-banner glass-panel">
+            <div class="hero-content">
+                <h2 id="monthLabel" style="font-size: 10px; letter-spacing: 1.5px; opacity: 0.6; text-transform: uppercase;">MARET 2026</h2>
+                <h1>Halo, Bapak/Ibu Guru!</h1>
+                <p>Kelola sistem informasi sekolah dalam satu genggaman digital yang elegan.</p>
+            </div>
+            <div class="logo-container">
+                <img src="sekolahku.jpg.jpeg" class="dashboard-logo" alt="Logo Sekolah" onerror="this.src='https://via.placeholder.com/100?text=LOGO'">
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="clock-box glass-panel">
+                <div class="time-now" id="digitalClock">00:00:00</div>
+                <div class="date-now" id="fullDateText">MEMUAT...</div>
+            </div>
+            <div class="calendar-box glass-panel">
+                <div class="cal-head">
+                    <span id="calMonth">Maret 2026</span>
+                    <span style="color: #cbd5e0;">INFO AKADEMIK</span>
+                </div>
+                <div class="cal-days" id="calendarDates"></div>
+            </div>
+        </div>
+
+        <div class="action-row">
+            <div class="action-card glass-panel" onclick="openModal('PENGUMUMAN')">
+                <div class="action-icon bg-red">📢</div>
+                <h3 style="font-size: 13px;">Pengumuman</h3>
+            </div>
+            <div class="action-card glass-panel" onclick="openModal('KEGIATAN')">
+                <div class="action-icon bg-blue">📸</div>
+                <h3 style="font-size: 13px;">Kegiatan</h3>
+            </div>
+            <div class="action-card glass-panel" onclick="bukaForum()">
+                <div class="action-icon bg-green">💬</div>
+                <h3 style="font-size: 13px;">Forum Chat</h3>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalUpdate" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Buat Postingan</h2>
+            
+            <div class="input-group">
+                <label class="input-label">JUDUL POSTINGAN</label>
+                <input type="text" id="postTitle" placeholder="Contoh: Jadwal Ujian Semester">
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">ISI INFORMASI</label>
+                <textarea id="postContent" rows="4" placeholder="Tuliskan detail informasi di sini..."></textarea>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">LAMPIRAN FOTO (OPSIONAL)</label>
+                <input type="file" id="postFile" accept="image/*">
+            </div>
+            
+            <button class="btn-post" id="btnPublish" onclick="kirimUpdate()">PUBLIKASIKAN SEKARANG</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        PORTAL SDN 62 TAJONG © 2026 | Riski OPS
+    </footer>
+
+    <script>
+        /* --- SKRIP ASLI (JANGAN DIEDIT) --- */
+        const ably = new Ably.Realtime('Lqd-SA.02uOJw:5Q9fS13uwWhBLZJsqF9XA4gjNMzowZHCq2jJ9kxDdx8');
+        const channel = ably.channels.get('update-sekolah');
+        let currentType = "";
+
+        ably.connection.on('connected', () => { 
+            const s = document.getElementById('status');
+            s.innerText = "● Online"; s.style.color="#2ecc71"; 
+        });
+
+        function toggleMenu() { 
+            document.getElementById("sidebar").classList.toggle("active"); 
+            document.getElementById("overlay").classList.toggle("active"); 
+        }
+
+        function bukaForum() { window.location.href = "forum.html?user=GuruAdmin"; }
+
+        function openModal(type) { 
+            currentType = type; 
+            document.getElementById("modalTitle").innerText = "Kirim " + type; 
+            document.getElementById("modalUpdate").style.display = "flex"; 
+        }
+
+        function closeModal() { document.getElementById("modalUpdate").style.display = "none"; }
+
+        function kirimUpdate() {
+            const judul = document.getElementById('postTitle').value;
+            const isi = document.getElementById('postContent').value;
+            const fileInput = document.getElementById('postFile');
+            const btn = document.getElementById('btnPublish');
+
+            if (!judul || !isi) return alert("Harap isi Judul dan Pesan!");
+            btn.disabled = true; btn.innerText = "SEDANG MENGIRIM...";
+
+            if (fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.readAsDataURL(fileInput.files[0]);
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const maxW = 400; 
+                        const scale = maxW / img.width;
+                        canvas.width = maxW; canvas.height = img.height * scale;
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        const compressedData = canvas.toDataURL('image/jpeg', 0.5);
+                        publishData(judul, isi, compressedData);
+                    };
+                };
+            } else { publishData(judul, isi, null); }
+        }
+
+        function publishData(judul, isi, foto) {
+            const btn = document.getElementById('btnPublish');
+            channel.publish('infoBaru', {
+                tipe: currentType, judul: judul, isi: isi, foto: foto,
+                tanggal: new Date().toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })
+            }, (err) => {
+                btn.disabled = false; btn.innerText = "PUBLIKASIKAN SEKARANG";
+                if(err) { alert("Gagal kirim!"); } 
+                else {
+                    alert("Berhasil terkirim!");
+                    closeModal();
+                    document.getElementById('postTitle').value = "";
+                    document.getElementById('postContent').value = "";
+                    document.getElementById('postFile').value = "";
+                }
+            });
+        }
+
+        function aksiLogout() { if(confirm("Keluar dari panel?")) { sessionStorage.clear(); window.location.href = "login.html"; } }
+
+        /* --- DASHBOARD LOGIC --- */
+        window.onload = function() {
+            const now = new Date();
+            // Jam Digital
+            setInterval(() => {
+                const t = new Date();
+                document.getElementById('digitalClock').innerText = t.toLocaleTimeString('id-ID', { hour12: false });
+            }, 1000);
+            
+            // Tanggalan
+            document.getElementById('fullDateText').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
+            document.getElementById('monthLabel').innerText = now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+            document.getElementById('calMonth').innerText = now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+
+            // Kalender Grid
+            const grid = document.getElementById('calendarDates');
+            const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+            grid.innerHTML = days.map(d => `<div style="font-weight:700; opacity:0.4;">${d}</div>`).join('');
+            
+            const first = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+            const total = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            
+            for(let i=0; i<first; i++) grid.innerHTML += '<div></div>';
+            for(let d=1; d<=total; d++) {
+                const active = d === now.getDate() ? 'today' : '';
+                grid.innerHTML += `<div class="date-num ${active}">${d}</div>`;
+            }
+        };
+    </script>
 </body>
 </html>
